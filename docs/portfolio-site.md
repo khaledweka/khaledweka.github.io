@@ -38,7 +38,13 @@ khaledalwakeel.github.io/
 
 ## Profile Photo
 
-Place your profile image at `assets/profile.png`. Recommended size: 400x400px or larger (square). If the image is missing, a fallback with initials "KA" is shown.
+Place your profile image at `assets/profile.png`.
+
+## Blog Images (Singleton Post)
+
+For the "Why Servers Crash" blog post, copy your two slide images to:
+- `assets/blog/singleton-problem.png` (first slide: problem & solution)
+- `assets/blog/singleton-solution.png` (second slide: problem → solution → considerations) Recommended size: 400x400px or larger (square). If the image is missing, a fallback with initials "KA" is shown.
 
 ## How to Update CV Content
 

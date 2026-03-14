@@ -928,6 +928,24 @@ a:focus-visible {
   word-break: break-all;
 }
 
+.post-figure {
+  margin: 2rem 0;
+}
+
+.post-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.post-figure figcaption {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
 .post-content code {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.9em;
