@@ -909,9 +909,23 @@ a:focus-visible {
   margin: 0 0 1rem;
 }
 
-.post-content ul {
+.post-content ul,
+.post-content ol {
   margin: 0 0 1rem;
   padding-left: 1.5rem;
+}
+
+.post-article-list {
+  list-style: decimal;
+}
+
+.post-article-list li {
+  margin-bottom: 1.25rem;
+  padding-left: 0.5rem;
+}
+
+.post-article-list li a {
+  word-break: break-all;
 }
 
 .post-content code {
