@@ -754,6 +754,50 @@ a:focus-visible {
   color: var(--color-accent);
 }
 
+.site-stats-bar {
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-elevated);
+}
+
+.site-stats-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem 2rem;
+}
+
+.site-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.site-stat-label {
+  color: var(--color-text-muted);
+}
+
+.site-stat-value {
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
+.site-stat-link.site-stat-value {
+  text-decoration: none;
+}
+
+.site-stat-link.site-stat-value:hover {
+  text-decoration: underline;
+}
+
+.visitor-counter-value {
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
 .copyright {
   margin-top: 1rem;
   font-size: 0.85rem;

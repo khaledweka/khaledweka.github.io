@@ -55,6 +55,23 @@ For the "Why Servers Crash" blog post, copy your two slide images to:
 - **Skills**: Edit the `.skills-grid`; each `.skill-category` has a title and `.skill-tags`.
 - **Certifications**: Edit the `.cert-list` in `index.html`.
 
+## Homepage stats bar (under hero)
+
+`index.html` includes a slim **Site statistics** strip below the hero and above **About**. Constants live at the top of `js/main.js` (`GITHUB_PAGES_*`, `COUNT_*`).
+
+| Stat | Source |
+|------|--------|
+| **Page views** | CountAPI `hit` key `homepage` on each home load (`initVisitorCounter`). |
+| **Blog views** | CountAPI key `blog-views-total`: `get` on the home page (`initBlogViewsDisplay`); `hit` on every load of a URL whose path matches `/blog` (`initBlogViewsIncrement`). Counts aggregate blog section page loads, not uniques. |
+| **Blog posts** | Static number in `index.html` linking to `blog/index.html` — update when you add posts. |
+| **Experience** | Static text in `index.html` (e.g. `12+ yrs`). |
+| **Stars / Forks** | GitHub `GET /repos/{owner}/{repo}` once (`initGithubRepoStats`); values link to the repo. Default: [`khaledweka/khaledalwakeel.github.io`](https://github.com/khaledweka/khaledalwakeel.github.io). |
+| **Site updated** | Same GitHub response: `pushed_at`. |
+
+If CountAPI or GitHub fails, the UI shows **—**. GitHub unauthenticated limit is about **60 requests/hour per IP**. Change `GITHUB_PAGES_OWNER` / `GITHUB_PAGES_REPO` in `main.js` if the repo moves.
+
+**Other ideas:** privacy-friendly analytics (e.g. GoatCounter) in `<head>`, or Shields.io badges instead of live API calls.
+
 ## Theme System
 
 - Dark/light mode toggle in the header.

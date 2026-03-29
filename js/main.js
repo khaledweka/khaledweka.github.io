@@ -9,6 +9,12 @@
   const THEME_DARK = 'dark';
   const THEME_LIGHT = 'light';
 
+  const GITHUB_PAGES_OWNER = 'khaledweka';
+  const GITHUB_PAGES_REPO = 'khaledalwakeel.github.io';
+  const COUNT_NS = 'khaledalwakeel-github-io';
+  const COUNT_KEY_HOMEPAGE = 'homepage';
+  const COUNT_KEY_BLOG_VIEWS = 'blog-views-total';
+
   /**
    * Get initial theme: stored preference, or system preference, or dark default
    */
@@ -272,6 +278,157 @@
     updateActive();
   }
 
+  /**
+   * Homepage page-view counter (CountAPI — static-site friendly, no backend).
+   * Increments once per full page load; not unique visitors.
+   */
+  function initVisitorCounter() {
+    var wrap = document.getElementById('visitor-counter');
+    if (!wrap) return;
+
+    var valueEl = wrap.querySelector('.visitor-counter-value');
+    if (!valueEl) return;
+
+    var url =
+      'https://api.countapi.xyz/hit/' +
+      encodeURIComponent(COUNT_NS) +
+      '/' +
+      encodeURIComponent(COUNT_KEY_HOMEPAGE);
+
+    fetch(url, { method: 'GET', cache: 'no-store' })
+      .then(function (res) {
+        if (!res.ok) throw new Error('bad status');
+        return res.json();
+      })
+      .then(function (data) {
+        if (data && typeof data.value !== 'undefined') {
+          valueEl.textContent = Number(data.value).toLocaleString();
+        } else {
+          valueEl.textContent = '—';
+        }
+      })
+      .catch(function () {
+        valueEl.textContent = '—';
+      })
+      .finally(function () {
+        valueEl.removeAttribute('aria-busy');
+      });
+  }
+
+  function isBlogSectionPath() {
+    var p = window.location.pathname || '';
+    return /\/blog(\/|$)/.test(p);
+  }
+
+  /**
+   * Increment aggregate blog view counter on any /blog/ page load (CountAPI hit).
+   */
+  function initBlogViewsIncrement() {
+    if (!isBlogSectionPath()) return;
+    var url =
+      'https://api.countapi.xyz/hit/' +
+      encodeURIComponent(COUNT_NS) +
+      '/' +
+      encodeURIComponent(COUNT_KEY_BLOG_VIEWS);
+    fetch(url, { method: 'GET', cache: 'no-store' }).catch(function () {});
+  }
+
+  /**
+   * Homepage: show blog view total without incrementing (CountAPI get).
+   */
+  function initBlogViewsDisplay() {
+    var el = document.getElementById('blog-views-value');
+    if (!el) return;
+
+    var url =
+      'https://api.countapi.xyz/get/' +
+      encodeURIComponent(COUNT_NS) +
+      '/' +
+      encodeURIComponent(COUNT_KEY_BLOG_VIEWS);
+
+    fetch(url, { method: 'GET', cache: 'no-store' })
+      .then(function (res) {
+        if (!res.ok) throw new Error('bad status');
+        return res.json();
+      })
+      .then(function (data) {
+        if (data && typeof data.value !== 'undefined' && data.value !== null) {
+          el.textContent = Number(data.value).toLocaleString();
+        } else {
+          el.textContent = '0';
+        }
+      })
+      .catch(function () {
+        el.textContent = '—';
+      })
+      .finally(function () {
+        el.removeAttribute('aria-busy');
+      });
+  }
+
+  /**
+   * GitHub repo: last push, stars, forks (single request). Unauthenticated: 60 req/hr per IP.
+   */
+  function initGithubRepoStats() {
+    var elDate = document.getElementById('repo-pushed-at');
+    var elStars = document.getElementById('github-stars');
+    var elForks = document.getElementById('github-forks');
+    if (!elDate && !elStars && !elForks) return;
+
+    var url =
+      'https://api.github.com/repos/' +
+      encodeURIComponent(GITHUB_PAGES_OWNER) +
+      '/' +
+      encodeURIComponent(GITHUB_PAGES_REPO);
+
+    fetch(url, {
+      headers: { Accept: 'application/vnd.github+json' },
+      cache: 'no-store'
+    })
+      .then(function (res) {
+        if (!res.ok) throw new Error('bad status');
+        return res.json();
+      })
+      .then(function (data) {
+        if (!data) return;
+
+        if (elDate) {
+          if (data.pushed_at) {
+            var d = new Date(data.pushed_at);
+            elDate.textContent = d.toLocaleDateString(undefined, {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric'
+            });
+          } else {
+            elDate.textContent = '—';
+          }
+        }
+
+        if (elStars && typeof data.stargazers_count === 'number') {
+          elStars.textContent = data.stargazers_count.toLocaleString();
+        } else if (elStars) {
+          elStars.textContent = '—';
+        }
+
+        if (elForks && typeof data.forks_count === 'number') {
+          elForks.textContent = data.forks_count.toLocaleString();
+        } else if (elForks) {
+          elForks.textContent = '—';
+        }
+      })
+      .catch(function () {
+        if (elDate) elDate.textContent = '—';
+        if (elStars) elStars.textContent = '—';
+        if (elForks) elForks.textContent = '—';
+      })
+      .finally(function () {
+        if (elDate) elDate.removeAttribute('aria-busy');
+        if (elStars) elStars.removeAttribute('aria-busy');
+        if (elForks) elForks.removeAttribute('aria-busy');
+      });
+  }
+
   // Run on DOM ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', run);
@@ -283,6 +440,10 @@
     initTheme();
     initThemeToggle();
     initPostLangTabs();
+    initBlogViewsIncrement();
+    initVisitorCounter();
+    initBlogViewsDisplay();
+    initGithubRepoStats();
     initSmoothScroll();
     initRevealOnScroll();
     initBlogShare();
