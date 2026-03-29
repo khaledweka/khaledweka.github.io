@@ -5,7 +5,7 @@ GitHub Pages portfolio and blog for Khaled Alwakeel. Plain HTML, CSS, and JavaSc
 ## Site Structure
 
 ```
-khaledalwakeel.github.io/
+khaledweka.github.io/
 ├── index.html          # Home: CV sections (About, Experience, Skills, Certifications)
 ├── blog/
 │   ├── index.html      # Blog listing
@@ -62,11 +62,11 @@ For the "Why Servers Crash" blog post, copy your two slide images to:
 - First visit uses `prefers-color-scheme` if no stored preference.
 - CSS variables in `css/styles.css` under `[data-theme="dark"]` and `[data-theme="light"]`.
 
-## Deployment to khaledalwakeel.github.io
+## Deployment to khaledweka.github.io
 
-For the site to be live at **https://khaledalwakeel.github.io**, the repository must be under the GitHub account `khaledalwakeel` and named `khaledalwakeel.github.io`.
+For the site to be live at **https://khaledweka.github.io**, the repository must be under the GitHub account `khaledweka` and named `khaledweka.github.io`.
 
-### Option A: Repo already under khaledalwakeel
+### Option A: Repo already under khaledweka
 
 1. Push to `main`:
    ```bash
@@ -76,22 +76,9 @@ For the site to be live at **https://khaledalwakeel.github.io**, the repository 
 3. Under "Build and deployment":
    - **Source**: Deploy from a branch
    - **Branch**: `main` / `/(root)`
-4. Save. The site will be live at https://khaledalwakeel.github.io within a few minutes.
+4. Save. The site will be live at https://khaledweka.github.io within a few minutes.
 
-### Option B: Repo is under a different account (e.g. khaledweka)
-
-To use the domain **khaledalwakeel.github.io**:
-
-1. Create a GitHub account named `khaledalwakeel` (if needed).
-2. Create a new repo: **github.com/khaledalwakeel/khaledalwakeel.github.io**
-3. Add it as a remote and push:
-   ```bash
-   git remote add khaledalwakeel https://github.com/khaledalwakeel/khaledalwakeel.github.io.git
-   git push khaledalwakeel main
-   ```
-4. In that repo: **Settings** → **Pages** → Source: `main` / `/(root)`
-
-### Option C: Keep current repo (khaledweka)
+### Option B: Keep current repo name (khaledalwakeel.github.io)
 
 If you keep the repo at `khaledweka/khaledalwakeel.github.io`, the site will be at:
 
