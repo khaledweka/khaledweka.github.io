@@ -98,6 +98,102 @@
   }
 
   /**
+   * Bilingual post language tabs (AR / EN)
+   */
+  function initPostLangTabs() {
+    const root = document.querySelector('[data-post-lang-tabs]');
+    if (!root) return;
+
+    const tabs = Array.prototype.slice.call(root.querySelectorAll('[role="tab"]'));
+    if (tabs.length < 2) return;
+
+    const panels = tabs.map(function (tab) {
+      const id = tab.getAttribute('aria-controls');
+      return id ? document.getElementById(id) : null;
+    });
+
+    function selectTab(index, updateHash) {
+      if (index < 0 || index >= tabs.length) return;
+
+      tabs.forEach(function (tab, i) {
+        const selected = i === index;
+        tab.setAttribute('aria-selected', selected ? 'true' : 'false');
+        tab.setAttribute('tabindex', selected ? '0' : '-1');
+        if (panels[i]) {
+          if (selected) {
+            panels[i].removeAttribute('hidden');
+          } else {
+            panels[i].setAttribute('hidden', '');
+          }
+        }
+      });
+
+      if (updateHash && panels[index] && panels[index].id) {
+        try {
+          history.replaceState(null, '', '#' + panels[index].id);
+        } catch (e) {
+          /* ignore */
+        }
+      }
+    }
+
+    function indexFromHash() {
+      const h = window.location.hash.slice(1);
+      if (h === 'section-en') return 1;
+      if (h === 'section-ar') return 0;
+      return null;
+    }
+
+    const fromHash = indexFromHash();
+    if (fromHash !== null) {
+      selectTab(fromHash, false);
+    }
+
+    tabs.forEach(function (tab, index) {
+      tab.addEventListener('click', function () {
+        selectTab(index, true);
+      });
+    });
+
+    const tablist = root.querySelector('[role="tablist"]');
+    if (tablist) {
+      tablist.addEventListener('keydown', function (e) {
+        const current = tabs.findIndex(function (t) {
+          return t.getAttribute('aria-selected') === 'true';
+        });
+        if (current < 0) return;
+
+        let next = current;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+          e.preventDefault();
+          if (e.key === 'ArrowRight') {
+            next = (current + 1) % tabs.length;
+          } else {
+            next = (current - 1 + tabs.length) % tabs.length;
+          }
+          selectTab(next, true);
+          tabs[next].focus();
+        } else if (e.key === 'Home') {
+          e.preventDefault();
+          selectTab(0, true);
+          tabs[0].focus();
+        } else if (e.key === 'End') {
+          e.preventDefault();
+          selectTab(tabs.length - 1, true);
+          tabs[tabs.length - 1].focus();
+        }
+      });
+    }
+
+    window.addEventListener('hashchange', function () {
+      const idx = indexFromHash();
+      if (idx !== null) {
+        selectTab(idx, false);
+      }
+    });
+  }
+
+  /**
    * Blog post share buttons
    */
   function initBlogShare() {
@@ -186,6 +282,7 @@
   function run() {
     initTheme();
     initThemeToggle();
+    initPostLangTabs();
     initSmoothScroll();
     initRevealOnScroll();
     initBlogShare();
