@@ -11,6 +11,8 @@
 
   const GITHUB_PAGES_OWNER = 'khaledweka';
   const GITHUB_PAGES_REPO = 'khaledalwakeel.github.io';
+  /** Abacus (CountAPI-compatible); original api.countapi.xyz no longer resolves */
+  const COUNT_API_BASE = 'https://abacus.jasoncameron.dev';
   const COUNT_NS = 'khaledalwakeel-github-io';
   const COUNT_KEY_HOMEPAGE = 'homepage';
   const COUNT_KEY_BLOG_VIEWS = 'blog-views-total';
@@ -279,7 +281,7 @@
   }
 
   /**
-   * Homepage page-view counter (CountAPI — static-site friendly, no backend).
+   * Homepage page-view counter (Abacus — static-site friendly, no backend).
    * Increments once per full page load; not unique visitors.
    */
   function initVisitorCounter() {
@@ -290,7 +292,8 @@
     if (!valueEl) return;
 
     var url =
-      'https://api.countapi.xyz/hit/' +
+      COUNT_API_BASE +
+      '/hit/' +
       encodeURIComponent(COUNT_NS) +
       '/' +
       encodeURIComponent(COUNT_KEY_HOMEPAGE);
@@ -321,12 +324,13 @@
   }
 
   /**
-   * Increment aggregate blog view counter on any /blog/ page load (CountAPI hit).
+   * Increment aggregate blog view counter on any /blog/ page load (Abacus hit).
    */
   function initBlogViewsIncrement() {
     if (!isBlogSectionPath()) return;
     var url =
-      'https://api.countapi.xyz/hit/' +
+      COUNT_API_BASE +
+      '/hit/' +
       encodeURIComponent(COUNT_NS) +
       '/' +
       encodeURIComponent(COUNT_KEY_BLOG_VIEWS);
@@ -334,20 +338,23 @@
   }
 
   /**
-   * Homepage: show blog view total without incrementing (CountAPI get).
+   * Homepage: show blog view total without incrementing (Abacus get).
+   * Abacus returns 404 until the blog counter exists (no visits yet).
    */
   function initBlogViewsDisplay() {
     var el = document.getElementById('blog-views-value');
     if (!el) return;
 
     var url =
-      'https://api.countapi.xyz/get/' +
+      COUNT_API_BASE +
+      '/get/' +
       encodeURIComponent(COUNT_NS) +
       '/' +
       encodeURIComponent(COUNT_KEY_BLOG_VIEWS);
 
     fetch(url, { method: 'GET', cache: 'no-store' })
       .then(function (res) {
+        if (res.status === 404) return { value: 0 };
         if (!res.ok) throw new Error('bad status');
         return res.json();
       })

@@ -57,18 +57,18 @@ For the "Why Servers Crash" blog post, copy your two slide images to:
 
 ## Homepage stats bar (under hero)
 
-`index.html` includes a slim **Site statistics** strip below the hero and above **About**. Constants live at the top of `js/main.js` (`GITHUB_PAGES_*`, `COUNT_*`).
+`index.html` includes a slim **Site statistics** strip below the hero and above **About**. Constants live at the top of `js/main.js` (`GITHUB_PAGES_*`, `COUNT_API_BASE`, `COUNT_*`). Counters use [Abacus](https://abacus.jasoncameron.dev/) (same `/hit` and `/get` shape as the old CountAPI); the former `api.countapi.xyz` host no longer resolves.
 
 | Stat | Source |
 |------|--------|
-| **Page views** | CountAPI `hit` key `homepage` on each home load (`initVisitorCounter`). |
-| **Blog views** | CountAPI key `blog-views-total`: `get` on the home page (`initBlogViewsDisplay`); `hit` on every load of a URL whose path matches `/blog` (`initBlogViewsIncrement`). Counts aggregate blog section page loads, not uniques. |
+| **Page views** | Abacus `hit` key `homepage` on each home load (`initVisitorCounter`). |
+| **Blog views** | Abacus key `blog-views-total`: `get` on the home page (`initBlogViewsDisplay`); `hit` on every load of a URL whose path matches `/blog` (`initBlogViewsIncrement`). Counts aggregate blog section page loads, not uniques. Before any blog page has loaded, `get` returns 404 and the UI shows **0**. |
 | **Blog posts** | Static number in `index.html` linking to `blog/index.html` — update when you add posts. |
 | **Experience** | Static text in `index.html` (e.g. `12+ yrs`). |
 | **Stars / Forks** | GitHub `GET /repos/{owner}/{repo}` once (`initGithubRepoStats`); values link to the repo. Default: [`khaledweka/khaledalwakeel.github.io`](https://github.com/khaledweka/khaledalwakeel.github.io). |
 | **Site updated** | Same GitHub response: `pushed_at`. |
 
-If CountAPI or GitHub fails, the UI shows **—**. GitHub unauthenticated limit is about **60 requests/hour per IP**. Change `GITHUB_PAGES_OWNER` / `GITHUB_PAGES_REPO` in `main.js` if the repo moves.
+If Abacus or GitHub fails, the affected stat shows **—**. Abacus rate limit: **30 requests per 10 seconds per IP**. GitHub unauthenticated limit is about **60 requests/hour per IP**. Change `GITHUB_PAGES_OWNER` / `GITHUB_PAGES_REPO` in `main.js` if the repo moves.
 
 **Other ideas:** privacy-friendly analytics (e.g. GoatCounter) in `<head>`, or Shields.io badges instead of live API calls.
 
