@@ -876,6 +876,26 @@ a:focus-visible {
   line-height: 1.5;
 }
 
+.post-link--with-thumb {
+  display: grid;
+  grid-template-columns: minmax(104px, 132px) 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.post-item-thumb {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.post-link-text .post-title {
+  margin-top: 0;
+}
+
 /* Post single */
 .post-header {
   margin-bottom: 2rem;
