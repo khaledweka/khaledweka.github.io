@@ -61,9 +61,8 @@ For the "Why Servers Crash" blog post, copy your two slide images to:
 
 | Stat | Source |
 |------|--------|
-| **Page views** | Abacus `hit` key `homepage` on each home load (`initVisitorCounter`). |
+| **Page views** | Abacus `hit` key `homepage` on each home load (`initVisitorCounter`). Shown with a pill style (`.site-stat-value--pill`). External hit-badge images (e.g. hits.seeyoufarm) were removed: they often fail due to ad blockers, **503** responses, or third-party outages. |
 | **Blog views** | Abacus key `blog-views-total`: `get` on the home page (`initBlogViewsDisplay`); `hit` on every load of a URL whose path matches `/blog` (`initBlogViewsIncrement`). Counts aggregate blog section page loads, not uniques. Before any blog page has loaded, `get` returns 404 and the UI shows **0**. |
-| **Site hits** | [hits.seeyoufarm.com](https://hits.seeyoufarm.com) SVG badge (`incr` on load) for `https://khaledweka.github.io/` — embedded in `index.html`; separate from Abacus. |
 | **Blog posts** | Static number in `index.html` linking to `blog/index.html` — update when you add posts. |
 | **Experience** | Static text in `index.html` (e.g. `12+ yrs`). |
 | **Stars / Forks** | GitHub `GET /repos/{owner}/{repo}` once (`initGithubRepoStats`); values link to the repo. Default: [`khaledweka/khaledalwakeel.github.io`](https://github.com/khaledweka/khaledalwakeel.github.io). |
