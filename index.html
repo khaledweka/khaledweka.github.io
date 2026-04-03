@@ -67,6 +67,18 @@
             <span class="site-stat-label">Blog views</span>
             <span class="site-stat-value" id="blog-views-value" aria-busy="true">…</span>
           </div>
+          <div class="site-stat site-stat--hits-badge">
+            <span class="site-stat-label">Site hits</span>
+            <span class="site-stat-value site-stat-badge">
+              <img
+                src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fkhaledweka.github.io%2F&amp;count_bg=%23222222&amp;title_bg=%23555555&amp;icon=eye.svg&amp;icon_color=%23E7E7E7&amp;title=views&amp;edge_flat=false"
+                width="110"
+                height="20"
+                alt="Site views"
+                decoding="async"
+              >
+            </span>
+          </div>
           <div class="site-stat">
             <span class="site-stat-label">Blog posts</span>
             <a class="site-stat-value site-stat-link" href="blog/index.html">9</a>
@@ -621,6 +633,9 @@
           </p>
         </div>
       </section>
+      <section class="giscus-section container" aria-label="Comments">
+        <div id="giscus-container"></div>
+      </section>
     </main>
 
     <footer class="site-footer">
@@ -639,5 +654,6 @@
     </footer>
   </div>
   <script src="js/main.js"></script>
+  <script src="js/giscus.js" defer></script>
 </body>
 </html>
