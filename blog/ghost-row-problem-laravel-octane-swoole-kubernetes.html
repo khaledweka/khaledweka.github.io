@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="How persistent database connections in Swoole workers can create phantom transactions that silently eat your INSERT operations — and practical fixes for production Laravel Octane deployments." />
+  <title>The Ghost Row Problem — Laravel Octane + Swoole in Kubernetes</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d1117;
+      --bg-elevated: #161b22;
+      --bg-code: #1c2128;
+      --border: #30363d;
+      --border-accent: #f7803c;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --text-subtle: #6e7681;
+      --accent: #f7803c;
+      --accent-glow: rgba(247, 128, 60, 0.15);
+      --danger: #f85149;
+      --danger-bg: rgba(248, 81, 73, 0.1);
+      --success: #3fb950;
+      --success-bg: rgba(63, 185, 80, 0.1);
+      --warning: #d29922;
+      --warning-bg: rgba(210, 153, 34, 0.1);
+      --blue: #58a6ff;
+      --blue-bg: rgba(88, 166, 255, 0.1);
+      --purple: #bc8cff;
+      --code-keyword: #ff7b72;
+      --code-string: #a5d6ff;
+      --code-comment: #6e7681;
+      --code-function: #d2a8ff;
+      --code-variable: #ffa657;
+      --code-class: #7ee787;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .top-menu {
+      border-bottom: 1px solid var(--border);
+      background: rgba(13, 17, 23, 0.95);
+      backdrop-filter: blur(6px);
+    }
+
+    .top-menu-inner {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .top-menu-brand {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 15px;
+      letter-spacing: 0.01em;
+    }
+
+    .top-menu-links {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .top-menu-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      border-bottom: 1px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .top-menu-links a:hover {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .hero {
+      position: relative;
+      padding: 80px 24px 60px;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -200px;
+      right: -200px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      max-width: 780px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent);
+      margin-bottom: 28px;
+      letter-spacing: 0.02em;
+    }
+
+    .hero-tag .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--danger);
+      animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .hero h1 {
+      font-family: 'Source Serif 4', serif;
+      font-size: clamp(32px, 5vw, 48px);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+
+    .hero h1 span {
+      color: var(--accent);
+    }
+
+    .hero-subtitle {
+      font-size: 18px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      max-width: 640px;
+    }
+
+    .hero-meta {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      font-size: 14px;
+      color: var(--text-subtle);
+    }
+
+    .hero-meta span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .article {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 60px 24px 100px;
+    }
+
+    .article h2 {
+      font-family: 'Source Serif 4', serif;
+      font-size: 28px;
+      font-weight: 700;
+      margin-top: 56px;
+      margin-bottom: 20px;
+      color: var(--text);
+      position: relative;
+      padding-left: 20px;
+    }
+
+    .article h2::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 4px;
+      bottom: 4px;
+      width: 3px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    .article h3 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      margin-top: 40px;
+      margin-bottom: 14px;
+      color: var(--text);
+    }
+
+    .article p {
+      margin-bottom: 18px;
+      color: var(--text-muted);
+      font-size: 16.5px;
+    }
+
+    .article strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .article a {
+      color: var(--blue);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.2s;
+    }
+
+    .article a:hover {
+      border-bottom-color: var(--blue);
+    }
+
+    .code-block {
+      position: relative;
+      margin: 24px 0 28px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--text-subtle);
+    }
+
+    .code-lang {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    pre {
+      background: var(--bg-code);
+      padding: 20px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13.5px;
+      line-height: 1.7;
+      tab-size: 4;
+    }
+
+    pre code {
+      color: var(--text-muted);
+    }
+
+    .kw { color: var(--code-keyword); }
+    .str { color: var(--code-string); }
+    .cm { color: var(--code-comment); font-style: italic; }
+    .fn { color: var(--code-function); }
+    .var { color: var(--code-variable); }
+    .cls { color: var(--cls, var(--code-class)); }
+
+    .callout {
+      padding: 20px 24px;
+      border-radius: 8px;
+      margin: 28px 0;
+      border-left: 3px solid;
+      font-size: 15px;
+    }
+
+    .callout p {
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+
+    .callout p:last-child { margin-bottom: 0; }
+
+    .callout-danger {
+      background: var(--danger-bg);
+      border-color: var(--danger);
+    }
+
+    .callout-danger .callout-title { color: var(--danger); }
+
+    .callout-success {
+      background: var(--success-bg);
+      border-color: var(--success);
+    }
+
+    .callout-success .callout-title { color: var(--success); }
+
+    .callout-warning {
+      background: var(--warning-bg);
+      border-color: var(--warning);
+    }
+
+    .callout-warning .callout-title { color: var(--warning); }
+
+    .callout-info {
+      background: var(--blue-bg);
+      border-color: var(--blue);
+    }
+
+    .callout-info .callout-title { color: var(--blue); }
+
+    .callout-title {
+      font-weight: 700;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+    }
+
+    .diagram {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 32px 24px;
+      margin: 28px 0;
+      overflow-x: auto;
+    }
+
+    .diagram-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-subtle);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 20px;
+    }
+
+    .flow {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+    }
+
+    .flow-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 8px 0;
+    }
+
+    .flow-marker {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      margin-top: 1px;
+    }
+
+    .flow-marker.ok { background: var(--success-bg); color: var(--success); border: 1px solid var(--success); }
+    .flow-marker.warn { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning); }
+    .flow-marker.bad { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger); }
+    .flow-marker.info { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue); }
+
+    .flow-content {
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .flow-content strong { color: var(--text); }
+
+    .flow-arrow {
+      padding-left: 8px;
+      color: var(--text-subtle);
+      font-size: 16px;
+    }
+
+    code:not(pre code) {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.88em;
+      background: var(--bg-elevated);
+      padding: 2px 7px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      color: var(--accent);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 48px 0;
+    }
+
+    .toc {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px 28px;
+      margin: 32px 0;
+    }
+
+    .toc-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-subtle);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 14px;
+    }
+
+    .toc ol {
+      list-style: none;
+      counter-reset: toc-counter;
+    }
+
+    .toc li {
+      counter-increment: toc-counter;
+      padding: 6px 0;
+    }
+
+    .toc li::before {
+      content: counter(toc-counter, decimal-leading-zero);
+      color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      margin-right: 12px;
+    }
+
+    .toc a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 15px;
+      transition: color 0.2s;
+    }
+
+    .toc a:hover { color: var(--accent); }
+
+    .comparison {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 24px 0;
+      font-size: 14.5px;
+    }
+
+    .comparison th {
+      text-align: left;
+      padding: 12px 16px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      font-weight: 600;
+      color: var(--text);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .comparison td {
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      vertical-align: top;
+    }
+
+    .comparison tr:hover td {
+      background: var(--bg-elevated);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .badge-safe { background: var(--success-bg); color: var(--success); }
+    .badge-moderate { background: var(--warning-bg); color: var(--warning); }
+    .badge-risky { background: var(--danger-bg); color: var(--danger); }
+
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 24px;
+      text-align: center;
+    }
+
+    .footer-inner {
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    .footer-tags {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .footer-tag {
+      padding: 4px 12px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 12px;
+      color: var(--text-subtle);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .footer-text {
+      font-size: 14px;
+      color: var(--text-subtle);
+    }
+
+    @media (max-width: 640px) {
+      .top-menu-inner {
+        padding: 12px 16px;
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .top-menu-links {
+        justify-content: flex-start;
+      }
+
+      .hero { padding: 48px 16px 40px; }
+      .article { padding: 40px 16px 80px; }
+      pre { font-size: 12px; padding: 16px; }
+      .hero-meta { flex-direction: column; align-items: flex-start; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top-menu">
+    <div class="top-menu-inner">
+      <a href="../index.html" class="top-menu-brand">Khaled Alwakeel</a>
+      <ul class="top-menu-links">
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../index.html#experience">Experience</a></li>
+        <li><a href="../index.html#skills">Skills</a></li>
+        <li><a href="../index.html#certifications">Certifications</a></li>
+        <li><a href="index.html">Blog</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="hero-tag">
+        <span class="dot"></span>
+        Production Debugging
+      </div>
+      <h1>The <span>Ghost Row</span> Problem:<br/>Laravel Octane + Swoole in Kubernetes</h1>
+      <p class="hero-subtitle">
+        How persistent database connections in Swoole workers can create phantom transactions that silently eat your INSERT operations — and three battle-tested strategies to prevent it without sacrificing performance.
+      </p>
+      <div class="hero-meta">
+        <span>April 2026</span>
+        <span>12 min read</span>
+        <span>Laravel · Octane · Swoole · Kubernetes</span>
+      </div>
+    </div>
+  </header>
+
+  <article class="article">
+    <nav class="toc">
+      <div class="toc-title">Table of Contents</div>
+      <ol>
+        <li><a href="#setup">The Setup — Octane + Swoole in Production</a></li>
+        <li><a href="#ghost">What Is a Ghost Row?</a></li>
+        <li><a href="#why">Why Swoole Workers Carry Dirty State</a></li>
+        <li><a href="#sequence">The Kill Sequence — Step by Step</a></li>
+        <li><a href="#disconnect">The Nuclear Option: DisconnectFromDatabases</a></li>
+        <li><a href="#guard">The Balanced Fix: RequestReceived Guard</a></li>
+        <li><a href="#code">Defensive Code Patterns</a></li>
+        <li><a href="#comparison">Comparison: Which Strategy to Use</a></li>
+        <li><a href="#redis">What About Redis?</a></li>
+        <li><a href="#final">Final Production Config</a></li>
+      </ol>
+    </nav>
+
+    <h2 id="setup">The Setup — Octane + Swoole in Production</h2>
+    <p>
+      Laravel Octane with Swoole is a massive performance upgrade. Instead of bootstrapping your entire application on every HTTP request (like PHP-FPM does), Swoole keeps your application in memory and reuses long-lived workers to handle requests. The result: dramatically lower latency, higher throughput, and significantly less overhead.
+    </p>
+    <p>
+      But this architecture introduces a class of bugs that doesn't exist in traditional PHP. The most dangerous one involves <strong>database connection persistence</strong>.
+    </p>
+    <p>
+      In PHP-FPM, every request gets a fresh process. Fresh memory, fresh connections, fresh state. When the request ends, everything is destroyed. It's inefficient, but it's safe.
+    </p>
+    <p>
+      In Swoole, workers are long-lived. Database connections persist across hundreds of requests. And that's where ghost rows come from.
+    </p>
+
+    <h2 id="ghost">What Is a Ghost Row?</h2>
+    <p>
+      A ghost row is an INSERT that your application believes succeeded — it gets a valid auto-increment ID, builds a successful response, returns HTTP 201 — but the row never actually persists to disk. Moments later, it vanishes from the database. The auto-increment counter moves forward (InnoDB never rolls that back), so you're left with a valid-looking ID that points to nothing.
+    </p>
+    <div class="callout callout-danger">
+      <div class="callout-title">The Danger</div>
+      <p>Your API returns <code>{ "id": 247, "status": "created" }</code> to the client. The client stores this ID, builds UI around it, maybe triggers downstream processes. But <code>SELECT * FROM claims WHERE id = 247</code> returns empty. The row never existed — or rather, it existed for a few milliseconds inside an uncommitted transaction.</p>
+    </div>
+
+    <h2 id="why">Why Swoole Workers Carry Dirty State</h2>
+    <p>
+      The root cause is a <strong>phantom transaction</strong> — an uncommitted <code>BEGIN</code> left behind by a previous request on the same worker. This happens when:
+    </p>
+    <p>
+      A request starts a transaction but hits an unhandled exception, a timeout, or a connection hiccup before <code>COMMIT</code> or <code>ROLLBACK</code> executes. In PHP-FPM, the process dies and MySQL auto-rolls back. In Swoole, the worker survives. The connection survives. The uncommitted <code>BEGIN</code> survives.
+    </p>
+    <p>
+      The next request hits the same worker, inherits the same connection, and calls <code>DB::transaction()</code>. Laravel sees an existing connection with an open transaction. Instead of issuing a new <code>BEGIN</code>, it creates a <strong>savepoint</strong> — a nested checkpoint inside the existing transaction.
+    </p>
+
+    <h2 id="sequence">The Kill Sequence — Step by Step</h2>
+    <div class="diagram">
+      <div class="diagram-title">Request A → Worker #1 (leaves dirty state)</div>
+      <div class="flow">
+        <div class="flow-step"><span class="flow-marker ok">1</span><div class="flow-content"><strong>BEGIN</strong> — transaction starts</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><span class="flow-marker ok">2</span><div class="flow-content">INSERT / UPDATE operations execute</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><span class="flow-marker bad">3</span><div class="flow-content"><strong>Exception / timeout occurs</strong> — COMMIT never fires</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><span class="flow-marker warn">4</span><div class="flow-content">Worker returns to pool with <strong>open transaction on connection</strong></div></div>
+      </div>
+    </div>
+
+    <div class="diagram">
+      <div class="diagram-title">Request B → Same Worker #1 (your claim creation)</div>
+      <div class="flow">
+        <div class="flow-step"><span class="flow-marker info">1</span><div class="flow-content"><code>DB::transaction()</code> called — Laravel sees existing open transaction</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><span class="flow-marker warn">2</span><div class="flow-content"><strong>SAVEPOINT trans2</strong> created (not a new BEGIN)</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><span class="flow-marker ok">3</span><div class="flow-content">INSERT INTO claims — row appears, auto_increment ID = 247</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><span class="flow-marker ok">4</span><div class="flow-content"><strong>RELEASE SAVEPOINT</strong> — savepoint succeeds ✓</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><span class="flow-marker ok">5</span><div class="flow-content">API returns <code>201 Created { id: 247 }</code> to client</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><span class="flow-marker bad">6</span><div class="flow-content"><strong>Outer phantom transaction rolls back</strong> — claim row vanishes. ID 247 is consumed forever.</div></div>
+      </div>
+    </div>
+
+    <div class="callout callout-warning">
+      <div class="callout-title">Why this is hard to catch</div>
+      <p><strong>Intermittent:</strong> Only triggers when a worker's previous request left a dirty connection — maybe 1 in 500 requests.</p>
+      <p><strong>Invisible:</strong> Logging inside the transaction closure shows success because the savepoint really did release.</p>
+      <p><strong>Time-dependent:</strong> If you query immediately after the response, the row might still be visible (the phantom transaction hasn't rolled back yet).</p>
+    </div>
+
+    <h2 id="disconnect">The Nuclear Option: DisconnectFromDatabases</h2>
+    <p>Laravel Octane ships with a built-in listener for exactly this scenario:</p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">php</span><span>config/octane.php</span></div>
+      <pre><code><span class="cm">// In OperationTerminated listeners:</span>
+<span class="cls">OperationTerminated</span>::<span class="kw">class</span> => [
+    <span class="cls">FlushOnce</span>::<span class="kw">class</span>,
+    <span class="cls">FlushTemporaryContainerInstances</span>::<span class="kw">class</span>,
+    \<span class="cls">Laravel\Octane\Listeners\DisconnectFromDatabases</span>::<span class="kw">class</span>,
+],</code></pre>
+    </div>
+    <p>
+      This closes all database connections after every request. The next request opens a fresh connection. MySQL auto-rolls back any pending transaction on connection close. Problem solved.
+    </p>
+    <p>
+      <strong>The trade-off:</strong> You lose persistent connections — Octane's main performance advantage. Every request now pays the TCP handshake + authentication cost (~1–5ms within a Kubernetes cluster). For high-throughput APIs, this adds up.
+    </p>
+
+    <h2 id="guard">The Balanced Fix: RequestReceived Guard</h2>
+    <p>
+      If you want to keep persistent connections for performance, you can add a guard that checks for dirty state <strong>before</strong> each request:
+    </p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">php</span><span>app/Listeners/EnsureCleanDatabaseState.php</span></div>
+      <pre><code><span class="kw">namespace</span> App\Listeners;
+
+<span class="kw">use</span> Illuminate\Support\Facades\<span class="cls">DB</span>;
+<span class="kw">use</span> Illuminate\Support\Facades\<span class="cls">Log</span>;
+
+<span class="kw">class</span> <span class="cls">EnsureCleanDatabaseState</span>
+{
+    <span class="kw">public function</span> <span class="fn">handle</span>(<span class="var">$event</span>): <span class="kw">void</span>
+    {
+        <span class="kw">foreach</span> (<span class="cls">DB</span>::<span class="fn">getConnections</span>() <span class="kw">as</span> <span class="var">$name</span> => <span class="var">$connection</span>) {
+            <span class="cm">// Kill phantom transactions</span>
+            <span class="kw">if</span> (<span class="var">$connection</span>-><span class="fn">transactionLevel</span>() > <span class="var">0</span>) {
+                <span class="cls">Log</span>::<span class="fn">warning</span>(<span class="str">'Phantom transaction detected'</span>, [
+                    <span class="str">'connection'</span> => <span class="var">$name</span>,
+                    <span class="str">'level'</span>      => <span class="var">$connection</span>-><span class="fn">transactionLevel</span>(),
+                    <span class="str">'worker_pid'</span> => <span class="fn">getmypid</span>(),
+                ]);
+
+                <span class="var">$connection</span>-><span class="fn">rollBack</span>(<span class="var">0</span>);
+            }
+
+            <span class="cm">// Verify connection is alive (handles K8s pod restarts)</span>
+            <span class="kw">try</span> {
+                <span class="var">$connection</span>-><span class="fn">getPdo</span>()-><span class="fn">query</span>(<span class="str">'SELECT 1'</span>);
+            } <span class="kw">catch</span> (\<span class="cls">Throwable</span> <span class="var">$e</span>) {
+                <span class="cls">Log</span>::<span class="fn">warning</span>(<span class="str">'Stale connection, reconnecting'</span>, [
+                    <span class="str">'connection'</span> => <span class="var">$name</span>,
+                    <span class="str">'worker_pid'</span> => <span class="fn">getmypid</span>(),
+                ]);
+
+                <span class="var">$connection</span>-><span class="fn">reconnect</span>();
+            }
+        }
+    }
+}</code></pre>
+    </div>
+
+    <p>Register it on <code>RequestReceived</code>:</p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">php</span><span>config/octane.php</span></div>
+      <pre><code><span class="cls">RequestReceived</span>::<span class="kw">class</span> => [
+    \<span class="cls">App\Listeners\EnsureCleanDatabaseState</span>::<span class="kw">class</span>,
+    \<span class="cls">App\Listeners\EnsureCleanRedisState</span>::<span class="kw">class</span>,
+],</code></pre>
+    </div>
+
+    <div class="callout callout-success">
+      <div class="callout-title">What this catches</div>
+      <p>Open transactions from previous requests, dead connections after pod restarts or network blips, and transaction level mismatches.</p>
+    </div>
+
+    <div class="callout callout-warning">
+      <div class="callout-title">What this doesn't catch</div>
+      <p>MySQL session variables (<code>SET @var</code>), temporary tables, advisory locks (<code>GET_LOCK</code>), and <code>SET</code> commands from previous requests. For full session cleanup without disconnecting, use <code>RESET CONNECTION</code> on MySQL 8.0+.</p>
+    </div>
+
+    <h2 id="code">Defensive Code Patterns</h2>
+    <p>
+      Regardless of which infrastructure fix you choose, your application code should be resilient. The key principle: <strong>never trust data from inside a transaction closure after the closure returns.</strong> Always verify with a fresh query.
+    </p>
+
+    <h3>Pattern: INSERT Operations</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">php</span><span>ClaimRepository — safe create</span></div>
+      <pre><code><span class="kw">public function</span> <span class="fn">create</span>(<span class="cls">CreateClaimDto</span> <span class="var">$dto</span>): <span class="cls">Claim</span>
+{
+    <span class="cm">// Transaction returns ONLY the ID — an integer, nothing else</span>
+    <span class="var">$claimId</span> = <span class="cls">DB</span>::<span class="fn">transaction</span>(<span class="kw">function</span> () <span class="kw">use</span> (<span class="var">$dto</span>) {
+        <span class="var">$claim</span> = <span class="var">$this</span>->model-><span class="fn">create</span>(<span class="var">$dto</span>-><span class="fn">toClaimArray</span>());
+
+        <span class="kw">if</span> (! <span class="var">$claim</span>->exists) {
+            <span class="kw">throw new</span> \<span class="cls">RuntimeException</span>(<span class="str">'Failed to create claim'</span>);
+        }
+
+        <span class="cm">// ... products, media, timeline inserts ...</span>
+
+        <span class="kw">return</span> <span class="var">$claim</span>->id;
+    });
+
+    <span class="cm">// AFTER transaction commits — verify the row actually exists</span>
+    <span class="var">$claim</span> = <span class="var">$this</span>->model-><span class="fn">with</span>([<span class="str">'user'</span>, <span class="str">'products'</span>, <span class="str">'media'</span>])-><span class="fn">find</span>(<span class="var">$claimId</span>);
+
+    <span class="kw">if</span> (! <span class="var">$claim</span>) {
+        <span class="kw">throw new</span> \<span class="cls">RuntimeException</span>(
+            <span class="str">"Claim #{$claimId} not persisted. Worker: "</span> . <span class="fn">getmypid</span>()
+        );
+    }
+
+    <span class="kw">return</span> <span class="var">$claim</span>;
+}</code></pre>
+    </div>
+
+    <h3>Pattern: UPDATE Operations</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">php</span><span>ClaimRepository — safe update</span></div>
+      <pre><code><span class="kw">public function</span> <span class="fn">submitClaim</span>(<span class="kw">int</span> <span class="var">$id</span>, <span class="cls">UpdateClaimDto</span> <span class="var">$dto</span>): ?<span class="cls">Claim</span>
+{
+    <span class="var">$claim</span> = <span class="var">$this</span>->model-><span class="fn">find</span>(<span class="var">$id</span>);
+
+    <span class="kw">if</span> (! <span class="var">$claim</span>) {
+        <span class="kw">return null</span>;
+    }
+
+    <span class="cm">// Don't return from inside the transaction</span>
+    <span class="cls">DB</span>::<span class="fn">transaction</span>(<span class="kw">function</span> () <span class="kw">use</span> (<span class="var">$claim</span>, <span class="var">$dto</span>) {
+        <span class="kw">if</span> (! <span class="var">$claim</span>-><span class="fn">update</span>(<span class="var">$dto</span>-><span class="fn">toClaimArray</span>())) {
+            <span class="kw">throw new</span> \<span class="cls">RuntimeException</span>(<span class="str">"Update failed for claim #{$claim->id}"</span>);
+        }
+
+        <span class="cm">// ... timeline entries ...</span>
+    });
+
+    <span class="cm">// Fresh query AFTER commit — confirms persistence</span>
+    <span class="kw">return</span> <span class="var">$this</span>->model-><span class="fn">with</span>([<span class="str">'user'</span>, <span class="str">'products'</span>, <span class="str">'media'</span>])-><span class="fn">find</span>(<span class="var">$id</span>);
+}</code></pre>
+    </div>
+
+    <div class="callout callout-info">
+      <div class="callout-title">Why this matters</div>
+      <p>The <code>fresh()</code> or <code>load()</code> methods inside a transaction closure read from the same connection — they see uncommitted data. A <code>find()</code> after the transaction closure uses a committed read, confirming the row actually made it to disk.</p>
+    </div>
+
+    <h2 id="comparison">Comparison: Which Strategy to Use</h2>
+    <table class="comparison">
+      <thead>
+        <tr>
+          <th>Strategy</th>
+          <th>Latency Cost</th>
+          <th>Coverage</th>
+          <th>Safety</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>DisconnectFromDatabases</strong></td>
+          <td>~1–5ms per request</td>
+          <td>Everything — full reset</td>
+          <td><span class="badge badge-safe">Safest</span></td>
+        </tr>
+        <tr>
+          <td><strong>RequestReceived guard</strong></td>
+          <td>~0.1ms (SELECT 1 + check)</td>
+          <td>Transactions + dead connections</td>
+          <td><span class="badge badge-moderate">Safe</span></td>
+        </tr>
+        <tr>
+          <td><strong>Guard + RESET CONNECTION</strong></td>
+          <td>~0.2ms</td>
+          <td>Transactions + session state + temp tables</td>
+          <td><span class="badge badge-safe">Near-full</span></td>
+        </tr>
+        <tr>
+          <td><strong>Code-level verification only</strong></td>
+          <td>~0ms (extra SELECT)</td>
+          <td>Detects but doesn't prevent</td>
+          <td><span class="badge badge-risky">Detection only</span></td>
+        </tr>
+        <tr>
+          <td><strong>No fix</strong></td>
+          <td>0ms</td>
+          <td>None</td>
+          <td><span class="badge badge-risky">Vulnerable</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      For Kubernetes environments where you need both performance and reliability, the <strong>RequestReceived guard combined with code-level verification</strong> gives you the best balance. You keep persistent connections, eliminate phantom transactions, and have a safety net in application code.
+    </p>
+
+    <h2 id="redis">What About Redis?</h2>
+    <p>
+      Despite its name, <code>DisconnectFromDatabases</code> only targets connections through Laravel's <code>DatabaseManager</code> — that's MySQL, PostgreSQL, SQLite. Redis connections are managed by a separate <code>RedisManager</code> and are <strong>not affected</strong> by this listener.
+    </p>
+    <p>
+      Redis connections in Octane stay persistent across requests. This is generally fine — Redis handles thousands of concurrent connections easily and reconnection overhead is minimal. But in Kubernetes, the same stale-connection risk exists: if a Redis pod restarts, Swoole workers hold dead connections.
+    </p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">php</span><span>app/Listeners/EnsureCleanRedisState.php</span></div>
+      <pre><code><span class="kw">class</span> <span class="cls">EnsureCleanRedisState</span>
+{
+    <span class="kw">public function</span> <span class="fn">handle</span>(<span class="var">$event</span>): <span class="kw">void</span>
+    {
+        <span class="kw">try</span> {
+            <span class="var">$redis</span> = <span class="var">$event</span>->app-><span class="fn">make</span>(<span class="str">'redis'</span>);
+
+            <span class="kw">foreach</span> (<span class="var">$redis</span>-><span class="fn">connections</span>() <span class="kw">as</span> <span class="var">$connection</span>) {
+                <span class="kw">try</span> {
+                    <span class="var">$connection</span>-><span class="fn">ping</span>();
+                } <span class="kw">catch</span> (\<span class="cls">Throwable</span>) {
+                    <span class="var">$connection</span>-><span class="fn">disconnect</span>();
+                }
+            }
+        } <span class="kw">catch</span> (\<span class="cls">Throwable</span>) {
+            <span class="cm">// No Redis connections yet</span>
+        }
+    }
+}</code></pre>
+    </div>
+
+    <h2 id="final">Final Production Config</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">php</span><span>config/octane.php — production ready</span></div>
+      <pre><code><span class="cls">RequestReceived</span>::<span class="kw">class</span> => [
+    \<span class="cls">App\Listeners\EnsureCleanDatabaseState</span>::<span class="kw">class</span>,
+    \<span class="cls">App\Listeners\EnsureCleanRedisState</span>::<span class="kw">class</span>,
+],
+
+<span class="cls">OperationTerminated</span>::<span class="kw">class</span> => [
+    <span class="cls">FlushOnce</span>::<span class="kw">class</span>,
+    <span class="cls">FlushTemporaryContainerInstances</span>::<span class="kw">class</span>,
+    <span class="cm">// DisconnectFromDatabases intentionally disabled for performance</span>
+    <span class="cm">// CollectGarbage::class,</span>
+],</code></pre>
+    </div>
+
+    <p>
+      This configuration gives you persistent connections for low latency, phantom transaction protection at the start of every request, Redis health checks for Kubernetes resilience, and clear logging when dirty state is detected — giving you visibility into how often this actually happens in your environment.
+    </p>
+
+    <div class="callout callout-info">
+      <div class="callout-title">Monitor before you optimize</div>
+      <p>After deploying the guard, watch your logs for "Phantom transaction detected" entries. If you see them frequently, investigate which endpoints are failing to commit or roll back properly — the guard is a safety net, not a substitute for fixing the root cause in your application code.</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <p>
+      The ghost row problem is one of the most frustrating bugs in production Laravel Octane deployments. It passes every test, returns every correct response, and leaves no trace — until a user asks why their data disappeared. Understanding the mechanics of Swoole's persistent connections and MySQL's transaction nesting is the first step. Building the right guards — at the infrastructure level and in your application code — is what keeps your data alive.
+    </p>
+    <p><a href="index.html">&larr; Back to Blog</a></p>
+  </article>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-tags">
+        <span class="footer-tag">laravel</span>
+        <span class="footer-tag">octane</span>
+        <span class="footer-tag">swoole</span>
+        <span class="footer-tag">kubernetes</span>
+        <span class="footer-tag">mysql</span>
+        <span class="footer-tag">transactions</span>
+        <span class="footer-tag">debugging</span>
+      </div>
+      <p class="footer-text">Built from real production debugging. Ship safe.</p>
+    </div>
+  </footer>
+</body>
+</html>
