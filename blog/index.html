@@ -39,11 +39,18 @@
     </header>
 
     <main class="main">
-      <div class="container" style="padding-top: 3rem;">
+      <div class="container pt-3">
         <h1 class="hero-title">Blog</h1>
         <p class="blog-intro">Technical insights, backend development, and software engineering notes.</p>
 
         <ul class="post-list reveal-on-scroll">
+          <li class="post-item">
+            <a href="laravel-multi-database-relationship-connection-gotcha.html" class="post-link">
+              <h2 class="post-title">Laravel Multi-DB Relationship Gotcha: Why Eager Loads Hit the Wrong Database</h2>
+              <p class="post-meta">August 5, 2026</p>
+              <p class="post-excerpt">A subtle Eloquent behavior in multi-database apps: related models can inherit the parent connection during eager loading. Includes one-line fix and test impact checklist.</p>
+            </a>
+          </li>
           <li class="post-item">
             <a href="ghost-row-problem-laravel-octane-swoole-kubernetes.html" class="post-link">
               <h2 class="post-title">The Ghost Row Problem: Laravel Octane + Swoole in Kubernetes</h2>

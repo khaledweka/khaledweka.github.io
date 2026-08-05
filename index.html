@@ -47,7 +47,7 @@
             <div class="hero-photo-deco hero-photo-deco-2"></div>
             <div class="hero-photo-deco hero-photo-deco-3"></div>
             <img src="assets/profile.png" alt="Khaled Alwakeel - Technical Lead & Senior Software Engineer" class="hero-photo animate-in-delay-1" onerror="this.style.display='none'; var f=this.nextElementSibling; if(f){f.style.display='flex';}">
-            <div class="hero-photo-fallback animate-in-delay-1" aria-hidden="true" style="display:none;">KA</div>
+            <div class="hero-photo-fallback animate-in-delay-1 is-hidden" aria-hidden="true">KA</div>
           </div>
           <div class="hero-text">
             <h1 class="hero-title animate-in-delay-2">Khaled Alwakeel</h1>
@@ -69,7 +69,7 @@
           </div>
           <div class="site-stat">
             <span class="site-stat-label">Blog posts</span>
-            <a class="site-stat-value site-stat-link" href="blog/index.html">10</a>
+            <a class="site-stat-value site-stat-link" href="blog/index.html">11</a>
           </div>
           <div class="site-stat">
             <span class="site-stat-label">Experience</span>
@@ -104,6 +104,13 @@
           <h2 class="section-title">Blog</h2>
           <p class="blog-intro">Technical insights, backend development, and software engineering notes.</p>
           <ul class="post-list post-list-home">
+            <li class="post-item">
+              <a href="blog/laravel-multi-database-relationship-connection-gotcha.html" class="post-link">
+                <h3 class="post-title">Laravel Multi-DB Relationship Gotcha: Why Eager Loads Hit the Wrong Database</h3>
+                <p class="post-meta">August 5, 2026</p>
+                <p class="post-excerpt">A subtle Eloquent behavior in multi-database apps: related models can inherit the parent connection during eager loading. Includes one-line fix and test impact checklist.</p>
+              </a>
+            </li>
             <li class="post-item">
               <a href="blog/ghost-row-problem-laravel-octane-swoole-kubernetes.html" class="post-link">
                 <h3 class="post-title">The Ghost Row Problem: Laravel Octane + Swoole in Kubernetes</h3>
