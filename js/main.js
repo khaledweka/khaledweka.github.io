@@ -9,6 +9,10 @@
   const THEME_DARK = 'dark';
   const THEME_LIGHT = 'light';
 
+  const LANG_KEY = 'lang';
+  const LANG_AR = 'ar';
+  const LANG_EN = 'en';
+
   const GITHUB_PAGES_OWNER = 'khaledweka';
   const GITHUB_PAGES_REPO = 'khaledalwakeel.github.io';
   /** Abacus (CountAPI-compatible); original api.countapi.xyz no longer resolves */
@@ -62,6 +66,50 @@
     if (btn) {
       btn.addEventListener('click', toggleTheme);
     }
+  }
+
+  /**
+   * Language switch (AR <-> EN).
+   *
+   * The counterpart page is the same filename under (or outside) the /ar/ prefix,
+   * so the mapping is a pure prefix add/strip. This mirrors the inline <head>
+   * redirect script — keep the two in sync if the URL scheme ever changes.
+   */
+  function counterpartPath(pathname, targetLang) {
+    // Site root varies: "/" on the custom domain, "/repo/" on project pages,
+    // and a deep directory under file://. Derive it from the current page.
+    const arMatch = pathname.match(/^(.*?)\/ar\/(.*)$/);
+
+    if (targetLang === LANG_EN) {
+      return arMatch ? arMatch[1] + '/' + arMatch[2] : pathname;
+    }
+
+    if (arMatch) return pathname;
+
+    // Going EN -> AR: insert /ar/ before the trailing "blog/x.html" or "x.html".
+    // Directory URLs ("/", "/blog/") have an empty last segment — treat as index.
+    const parts = pathname.split('/');
+    const file = parts.pop();
+    const isBlog = parts[parts.length - 1] === 'blog';
+    if (isBlog) parts.pop();
+    return parts.join('/') + '/ar/' + (isBlog ? 'blog/' : '') + file;
+  }
+
+  function initLangSwitch() {
+    const btn = document.querySelector('.lang-switch');
+    if (!btn) return;
+
+    const target = btn.getAttribute('data-lang-target') === LANG_AR ? LANG_AR : LANG_EN;
+
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      try {
+        localStorage.setItem(LANG_KEY, target);
+      } catch (err) {
+        /* private mode — still navigate */
+      }
+      window.location.href = counterpartPath(window.location.pathname, target) + window.location.hash;
+    });
   }
 
   /**
@@ -446,6 +494,7 @@
   function run() {
     initTheme();
     initThemeToggle();
+    initLangSwitch();
     initPostLangTabs();
     initBlogViewsIncrement();
     initVisitorCounter();

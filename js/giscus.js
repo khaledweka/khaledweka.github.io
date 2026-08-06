@@ -14,6 +14,11 @@
     return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
   }
 
+  /** Match the comment UI to the page language */
+  function giscusLang() {
+    return document.documentElement.lang === 'ar' ? 'ar' : 'en';
+  }
+
   function sendThemeToGiscus(theme) {
     var iframe = document.querySelector('iframe.giscus-frame');
     if (!iframe || !iframe.contentWindow) return;
@@ -42,7 +47,7 @@
     s.setAttribute('data-emit-metadata', '0');
     s.setAttribute('data-input-position', 'bottom');
     s.setAttribute('data-theme', giscusTheme());
-    s.setAttribute('data-lang', 'en');
+    s.setAttribute('data-lang', giscusLang());
     container.appendChild(s);
 
     var mo = new MutationObserver(function () {
