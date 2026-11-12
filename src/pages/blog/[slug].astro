@@ -1,0 +1,23 @@
+---
+import { getCollection, render } from 'astro:content';
+import Post from '../../layouts/Post.astro';
+
+export async function getStaticPaths() {
+    const posts = await getCollection('blog');
+    return posts.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const dateLabel = entry.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+---
+<Post
+  title={entry.data.title}
+  pageTitle={entry.data.pageTitle}
+  description={entry.data.description ?? entry.data.excerpt}
+  lang={entry.data.lang === 'ar' ? 'ar' : 'en'}
+  dateLabel={dateLabel}
+  selfPath={`/blog/${entry.id}.html`}
+>
+  <Content />
+</Post>

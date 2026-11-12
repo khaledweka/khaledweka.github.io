@@ -7,11 +7,13 @@ interface Props {
     description: string;
     lang?: 'en' | 'ar';
     langRedirect?: boolean;
-    enPath: string;
-    arPath: string;
+    enPath?: string;
+    arPath?: string;
+    selfPath?: string;
+    inner?: boolean;
 }
 
-const { title, description, lang = 'en', langRedirect = false, enPath, arPath } = Astro.props;
+const { title, description, lang = 'en', langRedirect = false, enPath, arPath, selfPath, inner = false } = Astro.props;
 const siteOrigin = 'https://khaledweka.github.io';
 ---
 <!DOCTYPE html>
@@ -21,9 +23,15 @@ const siteOrigin = 'https://khaledweka.github.io';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content={description}>
     <title>{title}</title>
-    <link rel="alternate" hreflang="en" href={siteOrigin + enPath}>
-    <link rel="alternate" hreflang="ar" href={siteOrigin + arPath}>
-    <link rel="alternate" hreflang="x-default" href={siteOrigin + enPath}>
+    {selfPath && !langRedirect ? (
+      <link rel="alternate" hreflang={lang} href={siteOrigin + selfPath}>
+    ) : (
+      <>
+        <link rel="alternate" hreflang="en" href={siteOrigin + enPath}>
+        <link rel="alternate" hreflang="ar" href={siteOrigin + arPath}>
+        <link rel="alternate" hreflang="x-default" href={siteOrigin + enPath}>
+      </>
+    )}
     {langRedirect && (
       <script is:inline data-lang-redirect>
     /* Language preference — must run before render to avoid a flash of the wrong
@@ -59,11 +67,11 @@ const siteOrigin = 'https://khaledweka.github.io';
   </head>
   <body>
     <div class="site-wrapper">
-      <Header lang={lang} />
+      <Header lang={lang} inner={inner} />
       <main class="main">
         <slot />
       </main>
-      <Footer lang={lang} />
+      <Footer lang={lang} inner={inner} />
     </div>
     <script is:inline src="/js/main.js"></script>
     <script is:inline src="/js/giscus.js" defer></script>

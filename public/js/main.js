@@ -108,7 +108,9 @@
       } catch (err) {
         /* private mode — still navigate */
       }
-      window.location.href = counterpartPath(window.location.pathname, target) + window.location.hash;
+      // Inner pages (untranslated posts) declare an explicit destination
+      var explicit = btn.getAttribute('data-lang-href');
+      window.location.href = explicit || (counterpartPath(window.location.pathname, target) + window.location.hash);
     });
   }
 

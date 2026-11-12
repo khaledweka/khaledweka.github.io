@@ -1,9 +1,10 @@
 ---
 interface Props {
     lang: 'en' | 'ar';
+    inner?: boolean;
 }
 
-const { lang } = Astro.props;
+const { lang, inner = false } = Astro.props;
 
 const copy = {
     en: {
@@ -41,6 +42,11 @@ const copy = {
 };
 
 const t = copy[lang];
+
+// Inner pages (blog posts) link section anchors back to the home page
+const home = lang === 'ar' ? '/ar/index.html' : '/index.html';
+const blogHref = lang === 'ar' ? '/ar/blog/index.html' : '/blog/index.html';
+const switchHref = inner ? (lang === 'ar' ? '/blog/index.html' : '/ar/blog/index.html') : t.switchHref;
 ---
 <header class="site-header">
   <div class="container">
@@ -50,14 +56,26 @@ const t = copy[lang];
       </div>
       <nav>
         <ul class="nav-links">
-          <li><a href="#about">{t.about}</a></li>
-          <li><a href="#blog">{t.blog}</a></li>
-          <li><a href="#experience">{t.experience}</a></li>
-          <li><a href="#skills">{t.skills}</a></li>
-          <li><a href="#certifications">{t.certifications}</a></li>
-          <li><a href={t.allPostsHref}>{t.allPosts}</a></li>
+          {inner ? (
+            <>
+              <li><a href={`${home}#about`}>{t.about}</a></li>
+              <li><a href={`${home}#experience`}>{t.experience}</a></li>
+              <li><a href={`${home}#skills`}>{t.skills}</a></li>
+              <li><a href={`${home}#certifications`}>{t.certifications}</a></li>
+              <li><a href={blogHref}>{t.blog}</a></li>
+            </>
+          ) : (
+            <>
+              <li><a href="#about">{t.about}</a></li>
+              <li><a href="#blog">{t.blog}</a></li>
+              <li><a href="#experience">{t.experience}</a></li>
+              <li><a href="#skills">{t.skills}</a></li>
+              <li><a href="#certifications">{t.certifications}</a></li>
+              <li><a href={t.allPostsHref}>{t.allPosts}</a></li>
+            </>
+          )}
           <li>
-            <a href={t.switchHref} class="lang-switch" data-lang-target={t.switchTarget} lang={t.switchLang} hreflang={t.switchLang}>{t.switchLabel}</a>
+            <a href={switchHref} class="lang-switch" data-lang-target={t.switchTarget} data-lang-href={inner ? switchHref : undefined} lang={t.switchLang} hreflang={t.switchLang}>{t.switchLabel}</a>
           </li>
           <li>
             <button type="button" class="theme-toggle" aria-label={t.themeLabel}>

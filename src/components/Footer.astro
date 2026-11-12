@@ -1,9 +1,10 @@
 ---
 interface Props {
     lang: 'en' | 'ar';
+    inner?: boolean;
 }
 
-const { lang } = Astro.props;
+const { lang, inner = false } = Astro.props;
 
 const copy = {
     en: {
@@ -31,16 +32,32 @@ const copy = {
 };
 
 const t = copy[lang];
+
+// Inner pages (blog posts) link section anchors back to the home page
+const home = lang === 'ar' ? '/ar/index.html' : '/index.html';
+const blogHref = lang === 'ar' ? '/ar/blog/index.html' : '/blog/index.html';
 ---
 <footer class="site-footer">
   <div class="container">
     <ul class="footer-links">
-      <li><a href="#about">{t.about}</a></li>
-      <li><a href="#blog">{t.blog}</a></li>
-      <li><a href="#experience">{t.experience}</a></li>
-      <li><a href="#skills">{t.skills}</a></li>
-      <li><a href="#certifications">{t.certifications}</a></li>
-      <li><a href={t.allPostsHref}>{t.allPosts}</a></li>
+      {inner ? (
+        <>
+          <li><a href={`${home}#about`}>{t.about}</a></li>
+          <li><a href={`${home}#experience`}>{t.experience}</a></li>
+          <li><a href={`${home}#skills`}>{t.skills}</a></li>
+          <li><a href={`${home}#certifications`}>{t.certifications}</a></li>
+          <li><a href={blogHref}>{t.blog}</a></li>
+        </>
+      ) : (
+        <>
+          <li><a href="#about">{t.about}</a></li>
+          <li><a href="#blog">{t.blog}</a></li>
+          <li><a href="#experience">{t.experience}</a></li>
+          <li><a href="#skills">{t.skills}</a></li>
+          <li><a href="#certifications">{t.certifications}</a></li>
+          <li><a href={t.allPostsHref}>{t.allPosts}</a></li>
+        </>
+      )}
       <li><a href="mailto:Khaled_elwakeel@outlook.com">{t.contact}</a></li>
     </ul>
     <p class="copyright">{t.copyright}</p>
