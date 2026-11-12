@@ -1,6 +1,9 @@
 ---
 title: '14 System Design Articles to Upskill'
 excerpt: 'Essential reads for software engineers: authentication, OAuth2/JWT, caching, databases, distributed systems, and system design interview tips.'
+titleAr: '14 مقالًا في تصميم الأنظمة لتطوير مهاراتك'
+excerptAr: 'قراءات أساسية لمهندسي البرمجيات: المصادقة، وOAuth2/JWT، والتخزين المؤقت، وقواعد البيانات، والأنظمة الموزّعة، ونصائح مقابلات تصميم الأنظمة.'
+order: 3
 date: 2025-03-17
 lang: en
 description: '14 Essential System Design Articles for Software Engineers - Khaled Alwakeel. Authentication, caching, databases, distributed systems, and more.'

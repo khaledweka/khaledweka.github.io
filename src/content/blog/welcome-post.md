@@ -1,6 +1,8 @@
 ---
 title: 'Welcome to My Blog'
 excerpt: 'A short introduction to this space. I''ll be sharing thoughts on backend architecture, Laravel, PHP, system design, and lessons from building production systems over the past decade.'
+titleAr: 'مرحبًا بك في مدونتي'
+excerptAr: 'مقدمة قصيرة عن هذه المساحة. سأشارك هنا أفكارًا حول معمارية الواجهات الخلفية، وLaravel، وPHP، وتصميم الأنظمة، ودروسًا من بناء أنظمة إنتاجية عبر العقد الماضي.'
 date: 2025-03-14
 lang: en
 description: 'Welcome to My Blog - Khaled Alwakeel. Technical insights and backend development.'

@@ -2,6 +2,10 @@
 title: 'إزاي تحسب الـ System Capacity في ثواني؟ (فن الـ Back-of-the-envelope Estimation) 🧮'
 pageTitle: 'إزاي تحسب الـ System Capacity في ثواني؟ (Back-of-the-envelope)'
 excerpt: 'ثوابت القوى، الـ Latency، الـ Availability، ومثال تويتر — تقدير سريع للسعة قبل ما ترسم الـ architecture في إنترفيو System Design.'
+titleAr: 'إزاي تحسب الـ System Capacity في ثواني؟ (Back-of-the-envelope) 🧮'
+cardTitle: 'إزاي تحسب الـ System Capacity في ثواني؟ (Back-of-the-envelope) 🧮'
+image: '/assets/back-of-envelope-availability-nines.png'
+imageAlt: ''
 date: 2026-04-03
 lang: ar
 description: 'إزاي تحسب System Capacity في ثواني؟ فن الـ Back-of-the-envelope Estimation: ثوابت القوى، الـ Latency، الـ Availability، ومثال تويتر لإنترفيوهات System Design.'

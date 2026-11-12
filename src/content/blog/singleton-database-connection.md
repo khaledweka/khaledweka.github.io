@@ -1,6 +1,8 @@
 ---
 title: 'Why Servers Crash: The Database Connection Problem'
 excerpt: 'Overusing "new DatabaseConnection()" can open 1000 connections for 1000 users. The Singleton pattern saves memory and keeps your server alive.'
+titleAr: 'لماذا تنهار الخوادم؟ مشكلة الاتصال بقاعدة البيانات'
+excerptAr: 'الإفراط في استخدام "new DatabaseConnection()" قد يفتح 1000 اتصال لـ 1000 مستخدم. نمط الـ Singleton يوفّر الذاكرة ويُبقي خادمك حيًّا.'
 date: 2025-03-18
 lang: en
 description: 'Why Servers Crash: The Database Connection Problem - Khaled Alwakeel. How the Singleton pattern solves excessive database connections.'

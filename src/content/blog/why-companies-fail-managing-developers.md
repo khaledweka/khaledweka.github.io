@@ -1,6 +1,7 @@
 ---
 title: 'لماذا تفشل الشركات في إدارة المطورين؟ (تحليل علمي)'
 excerpt: 'تحليل علمي: Design Stamina Hypothesis، الديون التقنية، تأثير دانينغ-كروجر، والعدالة التنظيمية. حلول: DoR، Blameless Post-mortems، Evidence-based Management.'
+order: 1
 date: 2025-03-17
 lang: ar
 description: 'لماذا تفشل الشركات في إدارة المطورين؟ تحليل علمي: Design Stamina Hypothesis، الديون التقنية، تأثير دانينغ-كروجر، والعدالة التنظيمية.'

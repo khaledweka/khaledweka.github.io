@@ -62,7 +62,7 @@ const switchHref = inner ? (lang === 'ar' ? '/blog/index.html' : '/ar/blog/index
               <li><a href={`${home}#experience`}>{t.experience}</a></li>
               <li><a href={`${home}#skills`}>{t.skills}</a></li>
               <li><a href={`${home}#certifications`}>{t.certifications}</a></li>
-              <li><a href={blogHref}>{t.blog}</a></li>
+              <li><a href={blogHref} aria-current={/\/blog(\/index\.html)?\/?$/.test(Astro.url.pathname) ? 'page' : undefined}>{t.blog}</a></li>
             </>
           ) : (
             <>

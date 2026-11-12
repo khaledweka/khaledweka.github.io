@@ -1,5 +1,9 @@
 ---
 import Base from '../../layouts/Base.astro';
+import PostCard from '../../components/PostCard.astro';
+import { getAllPosts } from '../../data/posts';
+
+const posts = await getAllPosts();
 ---
 <Base
   title="خالد الوكيل | قائد تقني ومهندس برمجيات أول"
@@ -34,7 +38,7 @@ import Base from '../../layouts/Base.astro';
           </div>
           <div class="site-stat">
             <span class="site-stat-label">عدد المقالات</span>
-            <a class="site-stat-value site-stat-link" href="/ar/blog/index.html">11</a>
+            <a class="site-stat-value site-stat-link" href="/ar/blog/index.html">{posts.length}</a>
           </div>
           <div class="site-stat">
             <span class="site-stat-label">سنوات الخبرة</span>
@@ -69,93 +73,7 @@ import Base from '../../layouts/Base.astro';
           <h2 class="section-title">المدونة</h2>
           <p class="blog-intro">رؤى تقنية، وتطوير الواجهات الخلفية، وملاحظات في هندسة البرمجيات.</p>
           <ul class="post-list post-list-home">
-            <li class="post-item">
-              <a href="/blog/communication-essentials-for-developers-and-architects.html" class="post-link">
-                <h3 class="post-title">لماذا لا يكفي الكود الجيد وحده؟ أساسيات التواصل للمبرمجين ومعماريي البرمجيات</h3>
-                <p class="post-meta">12 نوفمبر 2026 <span class="post-lang-badge" lang="ar">المقال بالعربية والإنجليزية</span></p>
-                <p class="post-excerpt">الفهم المشترك، الأنماط والأنماط المضادة، خلط مستويات التجريد، ونبوءة القبول — من كتاب Communication Patterns لجاكي ريد. المقال متاح بالعربية والإنجليزية معًا.</p>
-              </a>
-            </li>
-            <li class="post-item">
-              <a href="/blog/laravel-multi-database-relationship-connection-gotcha.html" class="post-link">
-                <h3 class="post-title">مشكلة العلاقات في Laravel متعدد قواعد البيانات: لماذا يقرأ الـ Eager Load من قاعدة خاطئة</h3>
-                <p class="post-meta">5 أغسطس 2026 <span class="post-lang-badge" lang="ar">المقال بالإنجليزية</span></p>
-                <p class="post-excerpt">سلوك دقيق في Eloquent داخل التطبيقات متعددة قواعد البيانات: النماذج المرتبطة قد ترث اتصال النموذج الأب أثناء الـ eager loading. يتضمن الحل في سطر واحد وقائمة بتأثيره على الاختبارات.</p>
-              </a>
-            </li>
-            <li class="post-item">
-              <a href="/blog/ghost-row-problem-laravel-octane-swoole-kubernetes.html" class="post-link">
-                <h3 class="post-title">مشكلة الصف الشبح: Laravel Octane مع Swoole في Kubernetes</h3>
-                <p class="post-meta">14 أبريل 2026 <span class="post-lang-badge" lang="ar">المقال بالإنجليزية</span></p>
-                <p class="post-excerpt">كيف تُبقي اتصالات Swoole الدائمة معاملات وهمية حيّة فتضيع عمليات INSERT بصمت، مع حلول عملية وآمنة للإنتاج.</p>
-              </a>
-            </li>
-            <li class="post-item">
-              <a href="/blog/back-of-the-envelope-system-capacity.html" class="post-link post-link--with-thumb">
-                <img src="/assets/back-of-envelope-availability-nines.png" alt="" class="post-item-thumb" width="132" height="74" loading="lazy" decoding="async">
-                <div class="post-link-text">
-                  <h3 class="post-title">إزاي تحسب الـ System Capacity في ثواني؟ (Back-of-the-envelope) 🧮</h3>
-                  <p class="post-meta">3 أبريل 2026 </p>
-                  <p class="post-excerpt">ثوابت القوى، الـ Latency، الـ Availability، ومثال تويتر — تقدير سريع للسعة قبل ما ترسم الـ architecture في إنترفيو System Design.</p>
-                </div>
-              </a>
-            </li>
-            <li class="post-item">
-              <a href="/blog/beyond-solid-clean-architecture-components.html" class="post-link">
-                <h3 class="post-title">ما وراء الـ SOLID: بناء مكوّنات تدوم سنوات</h3>
-                <p class="post-meta">29 مارس 2026 <span class="post-lang-badge" lang="ar">المقال بالعربية والإنجليزية</span></p>
-                <p class="post-excerpt">قواعد مكوّنات الـ Clean Architecture: التماسك (REP، CCP، CRP) والترابط (ADP، SDP، SAP). المقال متاح بالعربية والإنجليزية معًا.</p>
-              </a>
-            </li>
-            <li class="post-item">
-              <a href="/blog/fintech-logistics-architecture.html" class="post-link">
-                <h3 class="post-title">معمارية التقنية المالية واللوجستيات: مخطط جاهز للإنتاج</h3>
-                <p class="post-meta">17 مارس 2026 <span class="post-lang-badge" lang="ar">المقال بالإنجليزية</span></p>
-                <p class="post-excerpt">معمارية مرجعية جاهزة للإنتاج لـ Laravel و Vue و Flutter: الخدمات المصغّرة، والـ DDD، والتنسيق القائم على الأحداث، والسياقات المحدودة، ومخططات قابلة للنشر.</p>
-              </a>
-            </li>
-            <li class="post-item">
-              <a href="/blog/why-companies-fail-managing-developers.html" class="post-link">
-                <h3 class="post-title">لماذا تفشل الشركات في إدارة المطورين؟ (تحليل علمي)</h3>
-                <p class="post-meta">17 مارس 2025 </p>
-                <p class="post-excerpt">تحليل علمي: Design Stamina Hypothesis، الديون التقنية، تأثير دانينغ-كروجر، والعدالة التنظيمية. حلول: DoR، Blameless Post-mortems، Evidence-based Management.</p>
-              </a>
-            </li>
-            <li class="post-item">
-              <a href="/blog/operational-excellence-manual.html" class="post-link">
-                <h3 class="post-title">دليل التميّز التشغيلي: من الفوضى إلى هندسة قابلة للتوسّع</h3>
-                <p class="post-meta">17 مارس 2025 <span class="post-lang-badge" lang="ar">المقال بالإنجليزية</span></p>
-                <p class="post-excerpt">دليل للانتقال من الفوضى إلى التميّز الهندسي: هندسة المتطلبات، ودورة حياة منهجية، وثقافة بلا لوم، ومقاييس DORA، وإدارة الديون التقنية.</p>
-              </a>
-            </li>
-            <li class="post-item">
-              <a href="/blog/singleton-database-connection.html" class="post-link">
-                <h3 class="post-title">لماذا تنهار الخوادم؟ مشكلة الاتصال بقاعدة البيانات</h3>
-                <p class="post-meta">18 مارس 2025 <span class="post-lang-badge" lang="ar">المقال بالإنجليزية</span></p>
-                <p class="post-excerpt">الإفراط في استخدام "new DatabaseConnection()" قد يفتح 1000 اتصال لـ 1000 مستخدم. نمط الـ Singleton يوفّر الذاكرة ويُبقي خادمك حيًّا.</p>
-              </a>
-            </li>
-            <li class="post-item">
-              <a href="/blog/system-design-articles.html" class="post-link">
-                <h3 class="post-title">14 مقالًا في تصميم الأنظمة لتطوير مهاراتك</h3>
-                <p class="post-meta">17 مارس 2025 <span class="post-lang-badge" lang="ar">المقال بالإنجليزية</span></p>
-                <p class="post-excerpt">قراءات أساسية لمهندسي البرمجيات: المصادقة، وOAuth2/JWT، والتخزين المؤقت، وقواعد البيانات، والأنظمة الموزّعة، ونصائح مقابلات تصميم الأنظمة.</p>
-              </a>
-            </li>
-            <li class="post-item">
-              <a href="/blog/restful-api-design.html" class="post-link">
-                <h3 class="post-title">مبادئ تصميم واجهات RESTful</h3>
-                <p class="post-meta">15 مارس 2025 <span class="post-lang-badge" lang="ar">المقال بالإنجليزية</span></p>
-                <p class="post-excerpt">أفضل الممارسات لبناء واجهات برمجية متسقة وقابلة للصيانة: الأسماء بدل الأفعال، ورموز الحالة، والإصدارات، والتقسيم إلى صفحات.</p>
-              </a>
-            </li>
-            <li class="post-item">
-              <a href="/blog/welcome-post.html" class="post-link">
-                <h3 class="post-title">مرحبًا بك في مدونتي</h3>
-                <p class="post-meta">14 مارس 2025 <span class="post-lang-badge" lang="ar">المقال بالإنجليزية</span></p>
-                <p class="post-excerpt">مقدمة قصيرة عن هذه المساحة. سأشارك هنا أفكارًا حول معمارية الواجهات الخلفية، وLaravel، وPHP، وتصميم الأنظمة، ودروسًا من بناء أنظمة إنتاجية عبر العقد الماضي.</p>
-              </a>
-            </li>
+            {posts.map((post) => <PostCard post={post} locale="ar" />)}
           </ul>
           <p class="blog-view-all">
             <a href="/ar/blog/index.html">عرض كل المقالات ←</a>

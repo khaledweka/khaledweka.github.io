@@ -1,6 +1,8 @@
 ---
 title: 'RESTful API Design Principles'
 excerpt: 'Best practices for building consistent, maintainable APIs. Nouns over verbs, status codes, versioning, and pagination.'
+titleAr: 'مبادئ تصميم واجهات RESTful'
+excerptAr: 'أفضل الممارسات لبناء واجهات برمجية متسقة وقابلة للصيانة: الأسماء بدل الأفعال، ورموز الحالة، والإصدارات، والتقسيم إلى صفحات.'
 date: 2025-03-15
 lang: en
 description: 'RESTful API Design Principles - Khaled Alwakeel. Best practices for building consistent, maintainable APIs.'

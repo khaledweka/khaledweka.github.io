@@ -1,5 +1,9 @@
 ---
 import Base from '../layouts/Base.astro';
+import PostCard from '../components/PostCard.astro';
+import { getAllPosts } from '../data/posts';
+
+const posts = await getAllPosts();
 ---
 <Base
   title="Khaled Alwakeel | Technical Lead & Senior Software Engineer"
@@ -33,7 +37,7 @@ import Base from '../layouts/Base.astro';
           </div>
           <div class="site-stat">
             <span class="site-stat-label">Blog posts</span>
-            <a class="site-stat-value site-stat-link" href="/blog/index.html">11</a>
+            <a class="site-stat-value site-stat-link" href="/blog/index.html">{posts.length}</a>
           </div>
           <div class="site-stat">
             <span class="site-stat-label">Experience</span>
@@ -68,93 +72,7 @@ import Base from '../layouts/Base.astro';
           <h2 class="section-title">Blog</h2>
           <p class="blog-intro">Technical insights, backend development, and software engineering notes.</p>
           <ul class="post-list post-list-home">
-            <li class="post-item">
-              <a href="/blog/communication-essentials-for-developers-and-architects.html" class="post-link">
-                <h3 class="post-title">Why Good Code Isn't Enough: Communication Essentials for Developers and Architects · لماذا لا يكفي الكود الجيد وحده؟</h3>
-                <p class="post-meta">November 12, 2026</p>
-                <p class="post-excerpt">Shared understanding, patterns vs antipatterns, mixing levels of abstraction, and the Acceptance Prophecy — from Jacqui Read's Communication Patterns. Same article in Arabic and English.</p>
-              </a>
-            </li>
-            <li class="post-item">
-              <a href="/blog/laravel-multi-database-relationship-connection-gotcha.html" class="post-link">
-                <h3 class="post-title">Laravel Multi-DB Relationship Gotcha: Why Eager Loads Hit the Wrong Database</h3>
-                <p class="post-meta">August 5, 2026</p>
-                <p class="post-excerpt">A subtle Eloquent behavior in multi-database apps: related models can inherit the parent connection during eager loading. Includes one-line fix and test impact checklist.</p>
-              </a>
-            </li>
-            <li class="post-item">
-              <a href="/blog/ghost-row-problem-laravel-octane-swoole-kubernetes.html" class="post-link">
-                <h3 class="post-title">The Ghost Row Problem: Laravel Octane + Swoole in Kubernetes</h3>
-                <p class="post-meta">April 14, 2026</p>
-                <p class="post-excerpt">How persistent Swoole worker connections can keep phantom transactions alive and silently lose INSERTs, plus practical production-safe fixes.</p>
-              </a>
-            </li>
-            <li class="post-item">
-              <a href="/blog/back-of-the-envelope-system-capacity.html" class="post-link post-link--with-thumb">
-                <img src="/assets/back-of-envelope-availability-nines.png" alt="" class="post-item-thumb" width="132" height="74" loading="lazy" decoding="async">
-                <div class="post-link-text">
-                  <h3 class="post-title">إزاي تحسب الـ System Capacity في ثواني؟ (Back-of-the-envelope) 🧮</h3>
-                  <p class="post-meta">April 3, 2026</p>
-                  <p class="post-excerpt">ثوابت القوى، الـ Latency، الـ Availability، ومثال تويتر — تقدير سريع للسعة قبل ما ترسم الـ architecture في إنترفيو System Design.</p>
-                </div>
-              </a>
-            </li>
-            <li class="post-item">
-              <a href="/blog/beyond-solid-clean-architecture-components.html" class="post-link">
-                <h3 class="post-title">Beyond SOLID: Building Components That Last Years · ما وراء الـ SOLID</h3>
-                <p class="post-meta">March 29, 2026</p>
-                <p class="post-excerpt">Clean Architecture component rules: cohesion (REP, CCP, CRP) and coupling (ADP, SDP, SAP). Same article in Arabic and English.</p>
-              </a>
-            </li>
-            <li class="post-item">
-              <a href="/blog/fintech-logistics-architecture.html" class="post-link">
-                <h3 class="post-title">Fintech + Logistics Architecture: A Production-Grade Blueprint</h3>
-                <p class="post-meta">March 17, 2026</p>
-                <p class="post-excerpt">Production-grade reference architecture for Laravel + Vue + Flutter: microservices, DDD, event-driven coordination, bounded contexts, and deployable blueprints.</p>
-              </a>
-            </li>
-            <li class="post-item">
-              <a href="/blog/why-companies-fail-managing-developers.html" class="post-link">
-                <h3 class="post-title">لماذا تفشل الشركات في إدارة المطورين؟ (تحليل علمي)</h3>
-                <p class="post-meta">March 17, 2025</p>
-                <p class="post-excerpt">تحليل علمي: Design Stamina Hypothesis، الديون التقنية، تأثير دانينغ-كروجر، والعدالة التنظيمية. حلول: DoR، Blameless Post-mortems، Evidence-based Management.</p>
-              </a>
-            </li>
-            <li class="post-item">
-              <a href="/blog/operational-excellence-manual.html" class="post-link">
-                <h3 class="post-title">The Operational Excellence Manual: From Chaos to Scalable Engineering</h3>
-                <p class="post-meta">March 17, 2025</p>
-                <p class="post-excerpt">A guide to shift from chaos to engineering excellence: requirements engineering, systematic lifecycle, blameless culture, DORA metrics, and technical debt management.</p>
-              </a>
-            </li>
-            <li class="post-item">
-              <a href="/blog/singleton-database-connection.html" class="post-link">
-                <h3 class="post-title">Why Servers Crash: The Database Connection Problem</h3>
-                <p class="post-meta">March 18, 2025</p>
-                <p class="post-excerpt">Overusing "new DatabaseConnection()" can open 1000 connections for 1000 users. The Singleton pattern saves memory and keeps your server alive.</p>
-              </a>
-            </li>
-            <li class="post-item">
-              <a href="/blog/system-design-articles.html" class="post-link">
-                <h3 class="post-title">14 System Design Articles to Upskill</h3>
-                <p class="post-meta">March 17, 2025</p>
-                <p class="post-excerpt">Essential reads for software engineers: authentication, OAuth2/JWT, caching, databases, distributed systems, and system design interview tips.</p>
-              </a>
-            </li>
-            <li class="post-item">
-              <a href="/blog/restful-api-design.html" class="post-link">
-                <h3 class="post-title">RESTful API Design Principles</h3>
-                <p class="post-meta">March 15, 2025</p>
-                <p class="post-excerpt">Best practices for building consistent, maintainable APIs. Nouns over verbs, status codes, versioning, and pagination.</p>
-              </a>
-            </li>
-            <li class="post-item">
-              <a href="/blog/welcome-post.html" class="post-link">
-                <h3 class="post-title">Welcome to My Blog</h3>
-                <p class="post-meta">March 14, 2025</p>
-                <p class="post-excerpt">A short introduction to this space. I'll be sharing thoughts on backend architecture, Laravel, PHP, system design, and lessons from building production systems over the past decade.</p>
-              </a>
-            </li>
+            {posts.map((post) => <PostCard post={post} locale="en" />)}
           </ul>
           <p class="blog-view-all">
             <a href="/blog/index.html">View all posts →</a>

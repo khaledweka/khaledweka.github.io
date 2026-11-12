@@ -1,0 +1,28 @@
+---
+import Base from '../../../layouts/Base.astro';
+import PostCard from '../../../components/PostCard.astro';
+import { getAllPosts } from '../../../data/posts';
+
+const posts = await getAllPosts();
+---
+<Base
+  title="المدونة | خالد الوكيل"
+  description="مدونة خالد الوكيل — رؤى تقنية وتطوير الواجهات الخلفية وهندسة البرمجيات."
+  lang="ar"
+  langRedirect
+  enPath="/blog/index.html"
+  arPath="/ar/blog/index.html"
+  inner
+>
+  <div class="container pt-3">
+    <h1 class="hero-title">المدونة</h1>
+    <p class="blog-intro">رؤى تقنية، وتطوير الواجهات الخلفية، وملاحظات في هندسة البرمجيات.</p>
+
+    <ul class="post-list reveal-on-scroll">
+      {posts.map((post) => <PostCard post={post} locale="ar" headingLevel={2} />)}
+    </ul>
+  </div>
+  <section class="giscus-section container" aria-label="التعليقات">
+    <div id="giscus-container"></div>
+  </section>
+</Base>
