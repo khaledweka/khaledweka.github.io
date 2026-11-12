@@ -8,9 +8,11 @@ interface Props {
     dateLabel: string;
     selfPath: string;
     pageTitle?: string;
+    raw?: string;
+    rawCss?: string;
 }
 
-const { title, description, lang, dateLabel, selfPath, pageTitle } = Astro.props;
+const { title, description, lang, dateLabel, selfPath, pageTitle, raw, rawCss } = Astro.props;
 ---
 <Base
   title={`${pageTitle ?? title} | Khaled Alwakeel`}
@@ -19,6 +21,9 @@ const { title, description, lang, dateLabel, selfPath, pageTitle } = Astro.props
   selfPath={selfPath}
   inner
 >
+  {rawCss && <Fragment slot="head" set:html={`<style>${rawCss}</style>`} />}
+  {raw ? <Fragment set:html={raw} /> : (
+  <>
   <article class="container" style="padding-top: 3rem;">
     <header class="post-header">
       <h1 class="post-title">{title}</h1>
@@ -42,4 +47,6 @@ const { title, description, lang, dateLabel, selfPath, pageTitle } = Astro.props
   <section class="giscus-section container" aria-label="Comments">
     <div id="giscus-container"></div>
   </section>
+  </>
+  )}
 </Base>

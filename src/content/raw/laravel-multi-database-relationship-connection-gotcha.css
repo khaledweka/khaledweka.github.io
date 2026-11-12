@@ -1,0 +1,112 @@
+
+    .post-article-wrap {
+      padding-top: 3rem;
+    }
+
+    .chart-block {
+      margin: 1.5rem 0;
+      padding: 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      background: color-mix(in oklab, var(--card-bg) 88%, transparent);
+    }
+
+    .chart-title {
+      margin: 0 0 .75rem;
+      font-size: 1.05rem;
+      color: var(--text-primary);
+    }
+
+    .flow-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      align-items: center;
+      margin-bottom: .5rem;
+    }
+
+    .flow-node {
+      padding: .45rem .7rem;
+      border: 1px solid var(--border-color);
+      border-radius: 999px;
+      background: var(--bg-secondary);
+      font-size: .9rem;
+      color: var(--text-primary);
+      white-space: nowrap;
+    }
+
+    .flow-arrow {
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .bars {
+      display: grid;
+      gap: .75rem;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      align-items: center;
+      gap: .75rem;
+      font-size: .92rem;
+    }
+
+    .bar-track {
+      height: 12px;
+      border-radius: 999px;
+      background: var(--bg-secondary);
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #5eead4, #22d3ee);
+    }
+
+    .bar-fill-92 { width: 92%; }
+    .bar-fill-24 { width: 24%; }
+
+    .bar-fill-risk {
+      background: linear-gradient(90deg, #f59e0b, #ef4444);
+    }
+
+    .bar-fill-safe {
+      background: linear-gradient(90deg, #4ade80, #22c55e);
+    }
+
+    .impact-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .92rem;
+    }
+
+    .impact-table th,
+    .impact-table td {
+      text-align: left;
+      padding: .55rem .6rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .impact-badge {
+      display: inline-block;
+      padding: .1rem .45rem;
+      border-radius: 999px;
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .01em;
+    }
+
+    .impact-high { background: rgba(239, 68, 68, .16); color: #fca5a5; }
+    .impact-medium { background: rgba(245, 158, 11, .16); color: #fcd34d; }
+    .impact-low { background: rgba(34, 197, 94, .16); color: #86efac; }
+
+    .chart-note {
+      margin: .7rem 0 0;
+      color: var(--text-muted);
+      font-size: .88rem;
+    }
+  

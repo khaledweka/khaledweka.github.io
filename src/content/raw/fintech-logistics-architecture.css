@@ -1,0 +1,6 @@
+
+    .arch-svg .service-box { fill: var(--color-bg-muted); stroke: var(--color-accent); }
+    .arch-svg .gateway-box { fill: var(--color-success-dim); stroke: var(--color-success); }
+    .arch-svg text { fill: var(--color-text); }
+    .arch-svg .service-label { font-size: 9px; fill: var(--color-text-muted); }
+  

@@ -1,0 +1,10 @@
+
+    /* Phase diagram SVG - theme-aware colors */
+    .phases-svg .phase-node rect { fill: var(--color-bg-muted); stroke: var(--color-accent); }
+    .phases-svg .phase-node.phase-start rect { stroke: var(--color-border); }
+    .phases-svg .phase-node.phase-late rect { stroke: var(--color-success); }
+    .phases-svg .phase-node.phase-goal rect { fill: var(--color-success-dim); stroke: var(--color-success); }
+    .phases-svg .phase-node text { fill: var(--color-text); }
+    .phases-svg .phase-node.phase-goal text:not(.phase-sub) { fill: var(--color-success); }
+    .phases-svg .phase-sub { fill: var(--color-text-muted); }
+  
