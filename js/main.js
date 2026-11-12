@@ -484,6 +484,104 @@
       });
   }
 
+  /**
+   * UI enhancements: skip link, mobile nav, header shadow, reading progress,
+   * back-to-top. All injected so no per-page HTML changes are needed.
+   */
+  function initSkipLink() {
+    var main = document.querySelector('main');
+    if (!main) return;
+    if (!main.id) main.id = 'main-content';
+    main.setAttribute('tabindex', '-1');
+    var isAr = document.documentElement.lang === 'ar';
+    var a = document.createElement('a');
+    a.className = 'skip-link';
+    a.href = '#' + main.id;
+    a.textContent = isAr ? 'تخطي إلى المحتوى' : 'Skip to content';
+    document.body.insertBefore(a, document.body.firstChild);
+  }
+
+  function initMobileNav() {
+    var inner = document.querySelector('.header-inner');
+    var nav = inner && inner.querySelector('nav');
+    if (!nav) return;
+    var isAr = document.documentElement.lang === 'ar';
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'nav-toggle';
+    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-label', isAr ? 'القائمة' : 'Menu');
+    btn.innerHTML =
+      '<svg class="icon-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>' +
+      '<svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+    inner.appendChild(btn);
+
+    function setOpen(open) {
+      nav.classList.toggle('is-open', open);
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    btn.addEventListener('click', function () {
+      setOpen(btn.getAttribute('aria-expanded') !== 'true');
+    });
+    nav.addEventListener('click', function (e) {
+      if (e.target.closest('a[href^="#"]')) setOpen(false);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && nav.classList.contains('is-open')) {
+        setOpen(false);
+        btn.focus();
+      }
+    });
+    document.addEventListener('click', function (e) {
+      if (!inner.contains(e.target)) setOpen(false);
+    });
+    window.addEventListener('resize', function () {
+      if (window.innerWidth > 860) setOpen(false);
+    });
+  }
+
+  function initScrollUi() {
+    var header = document.querySelector('.site-header');
+    var isPost = !!document.querySelector('.post-content');
+    var bar = null;
+    if (isPost) {
+      var wrap = document.createElement('div');
+      wrap.className = 'reading-progress';
+      wrap.setAttribute('aria-hidden', 'true');
+      bar = document.createElement('span');
+      wrap.appendChild(bar);
+      document.body.appendChild(wrap);
+    }
+
+    var isAr = document.documentElement.lang === 'ar';
+    var top = document.createElement('button');
+    top.type = 'button';
+    top.className = 'back-to-top';
+    top.setAttribute('aria-label', isAr ? 'العودة للأعلى' : 'Back to top');
+    top.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+    document.body.appendChild(top);
+    top.addEventListener('click', function () {
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+    });
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var y = window.scrollY;
+      if (header) header.classList.toggle('is-scrolled', y > 8);
+      top.classList.toggle('is-visible', y > 600);
+      if (bar) {
+        var max = document.documentElement.scrollHeight - window.innerHeight;
+        bar.style.transform = 'scaleX(' + (max > 0 ? Math.min(1, y / max) : 0) + ')';
+      }
+    }
+    window.addEventListener('scroll', function () {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }, { passive: true });
+    update();
+  }
+
   // Run on DOM ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', run);
@@ -504,5 +602,8 @@
     initRevealOnScroll();
     initBlogShare();
     initNavHighlight();
+    initSkipLink();
+    initMobileNav();
+    initScrollUi();
   }
 })();
