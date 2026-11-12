@@ -1,0 +1,76 @@
+---
+interface Props {
+    lang: 'en' | 'ar';
+}
+
+const { lang } = Astro.props;
+
+const copy = {
+    en: {
+        logo: 'Khaled Alwakeel',
+        logoHref: '/index.html',
+        about: 'About',
+        blog: 'Blog',
+        experience: 'Experience',
+        skills: 'Skills',
+        certifications: 'Certifications',
+        allPosts: 'All posts',
+        allPostsHref: '/blog/index.html',
+        switchLabel: 'العربية',
+        switchHref: '/ar/index.html',
+        switchTarget: 'ar',
+        switchLang: 'ar',
+        themeLabel: 'Toggle dark/light mode',
+    },
+    ar: {
+        logo: 'خالد الوكيل',
+        logoHref: '/ar/index.html',
+        about: 'نبذة',
+        blog: 'المدونة',
+        experience: 'الخبرات',
+        skills: 'المهارات',
+        certifications: 'الشهادات',
+        allPosts: 'كل المقالات',
+        allPostsHref: '/ar/blog/index.html',
+        switchLabel: 'English',
+        switchHref: '/index.html',
+        switchTarget: 'en',
+        switchLang: 'en',
+        themeLabel: 'تبديل الوضع الداكن/الفاتح',
+    },
+};
+
+const t = copy[lang];
+---
+<header class="site-header">
+  <div class="container">
+    <div class="header-inner">
+      <div class="site-logo">
+        <a href={t.logoHref}>{t.logo}</a>
+      </div>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#about">{t.about}</a></li>
+          <li><a href="#blog">{t.blog}</a></li>
+          <li><a href="#experience">{t.experience}</a></li>
+          <li><a href="#skills">{t.skills}</a></li>
+          <li><a href="#certifications">{t.certifications}</a></li>
+          <li><a href={t.allPostsHref}>{t.allPosts}</a></li>
+          <li>
+            <a href={t.switchHref} class="lang-switch" data-lang-target={t.switchTarget} lang={t.switchLang} hreflang={t.switchLang}>{t.switchLabel}</a>
+          </li>
+          <li>
+            <button type="button" class="theme-toggle" aria-label={t.themeLabel}>
+              <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+              </svg>
+              <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</header>

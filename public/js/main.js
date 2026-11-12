@@ -14,7 +14,7 @@
   const LANG_EN = 'en';
 
   const GITHUB_PAGES_OWNER = 'khaledweka';
-  const GITHUB_PAGES_REPO = 'khaledalwakeel.github.io';
+  const GITHUB_PAGES_REPO = 'khaledweka.github.io';
   /** Abacus (CountAPI-compatible); original api.countapi.xyz no longer resolves */
   const COUNT_API_BASE = 'https://abacus.jasoncameron.dev';
   const COUNT_NS = 'khaledalwakeel-github-io';

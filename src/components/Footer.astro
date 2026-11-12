@@ -1,0 +1,48 @@
+---
+interface Props {
+    lang: 'en' | 'ar';
+}
+
+const { lang } = Astro.props;
+
+const copy = {
+    en: {
+        about: 'About',
+        blog: 'Blog',
+        experience: 'Experience',
+        skills: 'Skills',
+        certifications: 'Certifications',
+        allPosts: 'All posts',
+        allPostsHref: '/blog/index.html',
+        contact: 'Contact',
+        copyright: '© 2025 Khaled Alwakeel',
+    },
+    ar: {
+        about: 'نبذة',
+        blog: 'المدونة',
+        experience: 'الخبرات',
+        skills: 'المهارات',
+        certifications: 'الشهادات',
+        allPosts: 'كل المقالات',
+        allPostsHref: '/ar/blog/index.html',
+        contact: 'تواصل معي',
+        copyright: '© 2025 خالد الوكيل',
+    },
+};
+
+const t = copy[lang];
+---
+<footer class="site-footer">
+  <div class="container">
+    <ul class="footer-links">
+      <li><a href="#about">{t.about}</a></li>
+      <li><a href="#blog">{t.blog}</a></li>
+      <li><a href="#experience">{t.experience}</a></li>
+      <li><a href="#skills">{t.skills}</a></li>
+      <li><a href="#certifications">{t.certifications}</a></li>
+      <li><a href={t.allPostsHref}>{t.allPosts}</a></li>
+      <li><a href="mailto:Khaled_elwakeel@outlook.com">{t.contact}</a></li>
+    </ul>
+    <p class="copyright">{t.copyright}</p>
+  </div>
+</footer>
